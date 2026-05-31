@@ -9,7 +9,26 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { formatCurrency } from '@/utils/format'
-import { ProjectStatus } from '@/types'
+import { ProjectStatus, Project } from '@/types'
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+} from '@dnd-kit/core'
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 const statusLabels: Record<ProjectStatus, string> = {
   proposal: 'Proposta',
@@ -19,22 +38,101 @@ const statusLabels: Record<ProjectStatus, string> = {
 }
 
 const statusColors: Record<ProjectStatus, string> = {
-  proposal: 'border-yellow-500',
-  in_progress: 'border-blue-500',
-  delivered: 'border-purple-500',
-  paid: 'border-green-500',
+  proposal: 'border-yellow-500 bg-yellow-500/10',
+  in_progress: 'border-blue-500 bg-blue-500/10',
+  delivered: 'border-purple-500 bg-purple-500/10',
+  paid: 'border-green-500 bg-green-500/10',
 }
 
-const statusBgColors: Record<ProjectStatus, string> = {
-  proposal: 'bg-yellow-500/10',
-  in_progress: 'bg-blue-500/10',
-  delivered: 'bg-purple-500/10',
-  paid: 'bg-green-500/10',
+const statusDotColors: Record<ProjectStatus, string> = {
+  proposal: 'bg-yellow-500',
+  in_progress: 'bg-blue-500',
+  delivered: 'bg-purple-500',
+  paid: 'bg-green-500',
+}
+
+interface KanbanColumnProps {
+  status: ProjectStatus
+  projects: Project[]
+  clients: Array<{ id: string; name: string }>
+}
+
+function KanbanColumn({ status, projects, clients }: KanbanColumnProps) {
+  return (
+    <div className={`rounded-xl border-t-2 ${statusColors[status]} p-4 min-h-[400px]`}>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <div className={`w-2 h-2 rounded-full ${statusDotColors[status]}`} />
+          <h3 className="font-semibold">{statusLabels[status]}</h3>
+        </div>
+        <span className="text-sm text-[#525252] bg-[#0a0a0a] px-2 py-1 rounded-full">
+          {projects.length}
+        </span>
+      </div>
+      <SortableContext items={projects.map(p => p.id)} strategy={verticalListSortingStrategy}>
+        <div className="space-y-3">
+          {projects.map((project) => (
+            <KanbanCard key={project.id} project={project} clients={clients} />
+          ))}
+        </div>
+      </SortableContext>
+    </div>
+  )
+}
+
+function KanbanCard({ project, clients }: { project: Project; clients: Array<{ id: string; name: string }> }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: project.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
+
+  const client = clients.find(c => c.id === project.clientId)
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={`bg-[#1a1a1a] border border-[#262626] rounded-lg p-4 cursor-grab active:cursor-grabbing hover:border-[#b8960f] transition-all ${
+        isDragging ? 'opacity-50 shadow-lg scale-105' : ''
+      }`}
+    >
+      <h4 className="font-medium text-sm">{project.name}</h4>
+      {project.description && (
+        <p className="text-xs text-[#525252] mt-1 line-clamp-2">{project.description}</p>
+      )}
+      <div className="flex items-center gap-2 mt-3">
+        <div className="w-6 h-6 rounded-full bg-[#262626] flex items-center justify-center text-[10px] text-[#a3a3a3]">
+          {client?.name?.charAt(0) || '?'}
+        </div>
+        <span className="text-xs text-[#525252]">{client?.name || 'Sem cliente'}</span>
+      </div>
+      <div className="flex items-center justify-between mt-3 pt-3 border-t border-[#262626]">
+        <span className="text-sm font-semibold text-[#d4af37]">{formatCurrency(project.value)}</span>
+        {project.deadline && (
+          <span className="text-xs text-[#525252]">
+            {new Date(project.deadline).toLocaleDateString('pt-BR')}
+          </span>
+        )}
+      </div>
+    </div>
+  )
 }
 
 export default function ProjectsPage() {
   const { projects, clients, addProject, updateProject } = useApp()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [activeId, setActiveId] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -42,6 +140,47 @@ export default function ProjectsPage() {
     clientId: '',
     deadline: '',
   })
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  )
+
+  const columns: ProjectStatus[] = ['proposal', 'in_progress', 'delivered', 'paid']
+
+  const getProjectsByStatus = (status: ProjectStatus) =>
+    projects.filter(p => p.status === status)
+
+  const activeProject = projects.find(p => p.id === activeId)
+
+  function handleDragStart(event: DragStartEvent) {
+    setActiveId(event.active.id as string)
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+    setActiveId(null)
+
+    if (!over) return
+
+    const activeProject = projects.find(p => p.id === active.id)
+    if (!activeProject) return
+
+    const overId = over.id as string
+    const overColumn = columns.find(s => overId === `column-${s}`)
+    
+    if (overColumn) {
+      updateProject(activeProject.id, { status: overColumn })
+      return
+    }
+
+    const overProject = projects.find(p => p.id === overId)
+    if (overProject && activeProject.id !== overProject.id) {
+      if (activeProject.status !== overProject.status) {
+        updateProject(activeProject.id, { status: overProject.status })
+      }
+    }
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -58,11 +197,7 @@ export default function ProjectsPage() {
     setIsDialogOpen(false)
   }
 
-  const handleStatusChange = (projectId: string, newStatus: ProjectStatus) => {
-    updateProject(projectId, { status: newStatus })
-  }
-
-  const columns: ProjectStatus[] = ['proposal', 'in_progress', 'delivered', 'paid']
+  const totalValue = projects.reduce((sum, p) => sum + p.value, 0)
 
   return (
     <DashboardLayout>
@@ -70,7 +205,7 @@ export default function ProjectsPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold">Projetos</h1>
-            <p className="text-[#a3a3a3]">{projects.length} projetos cadastrados</p>
+            <p className="text-[#a3a3a3]">{projects.length} projetos • {formatCurrency(totalValue)} total</p>
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
@@ -85,34 +220,21 @@ export default function ProjectsPage() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <Label htmlFor="name">Nome do Projeto *</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="bg-[#0a0a0a] border-[#262626]"
-                    required
-                  />
+                  <Input id="name" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="bg-[#0a0a0a] border-[#262626]" required />
                 </div>
                 <div>
                   <Label htmlFor="description">Descrição</Label>
-                  <Input
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="bg-[#0a0a0a] border-[#262626]"
-                  />
+                  <Input id="description" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} className="bg-[#0a0a0a] border-[#262626]" />
                 </div>
-                <div>
-                  <Label htmlFor="value">Valor (R$) *</Label>
-                  <Input
-                    id="value"
-                    type="number"
-                    step="0.01"
-                    value={formData.value}
-                    onChange={(e) => setFormData({ ...formData, value: e.target.value })}
-                    className="bg-[#0a0a0a] border-[#262626]"
-                    required
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="value">Valor (R$) *</Label>
+                    <Input id="value" type="number" step="0.01" value={formData.value} onChange={(e) => setFormData({ ...formData, value: e.target.value })} className="bg-[#0a0a0a] border-[#262626]" required />
+                  </div>
+                  <div>
+                    <Label htmlFor="deadline">Prazo</Label>
+                    <Input id="deadline" type="date" value={formData.deadline} onChange={(e) => setFormData({ ...formData, deadline: e.target.value })} className="bg-[#0a0a0a] border-[#262626]" />
+                  </div>
                 </div>
                 <div>
                   <Label htmlFor="clientId">Cliente *</Label>
@@ -122,22 +244,10 @@ export default function ProjectsPage() {
                     </SelectTrigger>
                     <SelectContent className="bg-[#1a1a1a] border-[#262626]">
                       {clients.map((client) => (
-                        <SelectItem key={client.id} value={client.id}>
-                          {client.name}
-                        </SelectItem>
+                        <SelectItem key={client.id} value={client.id}>{client.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
-                <div>
-                  <Label htmlFor="deadline">Prazo</Label>
-                  <Input
-                    id="deadline"
-                    type="date"
-                    value={formData.deadline}
-                    onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
-                    className="bg-[#0a0a0a] border-[#262626]"
-                  />
                 </div>
                 <Button type="submit" className="w-full bg-gradient-to-r from-[#d4af37] to-[#f4d03f] text-[#0a0a0a]">
                   Criar Projeto
@@ -147,55 +257,27 @@ export default function ProjectsPage() {
           </Dialog>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {columns.map((status) => (
-            <div key={status} className={`rounded-xl p-4 ${statusBgColors[status]} border-t-2 ${statusColors[status]}`}>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold">{statusLabels[status]}</h3>
-                <span className="text-sm text-[#525252]">
-                  {projects.filter(p => p.status === status).length}
-                </span>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {columns.map((status) => (
+              <KanbanColumn
+                key={status}
+                status={status}
+                projects={getProjectsByStatus(status)}
+                clients={clients}
+              />
+            ))}
+          </div>
+
+          <DragOverlay>
+            {activeProject ? (
+              <div className="bg-[#1a1a1a] border border-[#d4af37] rounded-lg p-4 shadow-xl rotate-3 opacity-90">
+                <h4 className="font-medium text-sm">{activeProject.name}</h4>
+                <span className="text-sm font-semibold text-[#d4af37] mt-2 block">{formatCurrency(activeProject.value)}</span>
               </div>
-              <div className="space-y-3">
-                {projects
-                  .filter(p => p.status === status)
-                  .map((project) => {
-                    const client = clients.find(c => c.id === project.clientId)
-                    return (
-                      <div
-                        key={project.id}
-                        className="bg-[#1a1a1a] border border-[#262626] rounded-lg p-3 hover:border-[#b8960f] transition-colors cursor-pointer"
-                      >
-                        <h4 className="font-medium text-sm">{project.name}</h4>
-                        <p className="text-xs text-[#525252] mt-1">{client?.name || 'Sem cliente'}</p>
-                        <div className="flex items-center justify-between mt-3">
-                          <span className="text-sm font-semibold text-[#d4af37]">
-                            {formatCurrency(project.value)}
-                          </span>
-                          {project.deadline && (
-                            <span className="text-xs text-[#525252]">
-                              {new Date(project.deadline).toLocaleDateString('pt-BR')}
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex gap-2 mt-3">
-                          {columns.filter(s => s !== status).map((newStatus) => (
-                            <button
-                              key={newStatus}
-                              onClick={() => handleStatusChange(project.id, newStatus)}
-                              className="text-xs px-2 py-1 rounded bg-[#262626] text-[#a3a3a3] hover:bg-[#404040] transition-colors"
-                            >
-                              → {statusLabels[newStatus].substring(0, 3)}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )
-                  })}
-              </div>
-            </div>
-          ))}
-        </div>
+            ) : null}
+          </DragOverlay>
+        </DndContext>
       </div>
     </DashboardLayout>
   )

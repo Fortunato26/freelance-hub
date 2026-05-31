@@ -4,12 +4,13 @@ import { DashboardLayout } from '@/components/DashboardLayout'
 import { useApp } from '@/context/AppContext'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency } from '@/utils/format'
+import { RevenueChart, ProjectsByStatusChart, TopClientsChart } from '@/components/dashboard/Charts'
 
 export default function Home() {
-  const { getDashboardStats, projects, payments } = useApp()
+  const { getDashboardStats, projects, payments, clients } = useApp()
   const stats = getDashboardStats()
 
-  const recentProjects = projects.slice(0, 5)
+  const recentProjects = projects.slice(0, 4)
   const recentPayments = payments.slice(0, 5)
 
   const statusLabels: Record<string, string> = {
@@ -73,58 +74,72 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="bg-[#1a1a1a] border-[#262626]">
-            <CardHeader>
-              <CardTitle>Projetos Recentes</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {recentProjects.map((project) => (
-                  <div key={project.id} className="flex items-center justify-between p-3 bg-[#0a0a0a] rounded-lg border border-[#262626]">
-                    <div>
-                      <p className="font-medium">{project.name}</p>
-                      <p className="text-sm text-[#525252]">{project.description}</p>
-                    </div>
-                    <div className="text-right">
-                      <span className={`px-2 py-1 rounded text-xs ${statusColors[project.status]}`}>
-                        {statusLabels[project.status]}
-                      </span>
-                      <p className="text-sm text-[#d4af37] mt-1">{formatCurrency(project.value)}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <RevenueChart />
+          <ProjectsByStatusChart />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <TopClientsChart />
+          </div>
 
           <Card className="bg-[#1a1a1a] border-[#262626]">
             <CardHeader>
-              <CardTitle>Últimas Transações</CardTitle>
+              <CardTitle className="text-lg">Últimas Transações</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {recentPayments.map((payment) => (
-                  <div key={payment.id} className="flex items-center justify-between p-3 bg-[#0a0a0a] rounded-lg border border-[#262626]">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
-                        payment.type === 'receive' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
-                      }`}>
-                        {payment.type === 'receive' ? '↑' : '↓'}
+                {recentPayments.length === 0 ? (
+                  <p className="text-center text-[#525252] py-8">Nenhuma transação</p>
+                ) : (
+                  recentPayments.map((payment) => (
+                    <div key={payment.id} className="flex items-center justify-between p-3 bg-[#0a0a0a] rounded-lg border border-[#262626]">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
+                          payment.type === 'receive' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                        }`}>
+                          {payment.type === 'receive' ? '↑' : '↓'}
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm line-clamp-1">{payment.description}</p>
+                          <p className="text-xs text-[#525252]">{new Date(payment.date).toLocaleDateString('pt-BR')}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-sm">{payment.description}</p>
-                        <p className="text-xs text-[#525252]">{new Date(payment.date).toLocaleDateString('pt-BR')}</p>
-                      </div>
+                      <span className={`font-semibold text-sm ${payment.type === 'receive' ? 'text-green-500' : 'text-red-500'}`}>
+                        {payment.type === 'receive' ? '+' : '-'} {formatCurrency(payment.amount)}
+                      </span>
                     </div>
-                    <span className={`font-semibold ${payment.type === 'receive' ? 'text-green-500' : 'text-red-500'}`}>
-                      {payment.type === 'receive' ? '+' : '-'} {formatCurrency(payment.amount)}
-                    </span>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>
         </div>
+
+        <Card className="bg-[#1a1a1a] border-[#262626]">
+          <CardHeader>
+            <CardTitle className="text-lg">Projetos Recentes</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {recentProjects.map((project) => {
+                const client = clients.find(c => c.id === project.clientId)
+                return (
+                  <div key={project.id} className="bg-[#0a0a0a] border border-[#262626] rounded-lg p-4 hover:border-[#b8960f] transition-colors">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className={`px-2 py-1 rounded text-xs ${statusColors[project.status]}`}>
+                        {statusLabels[project.status]}
+                      </span>
+                    </div>
+                    <h4 className="font-medium">{project.name}</h4>
+                    <p className="text-sm text-[#525252] mt-1">{client?.name || 'Sem cliente'}</p>
+                    <p className="text-lg font-bold text-[#d4af37] mt-3">{formatCurrency(project.value)}</p>
+                  </div>
+                )
+              })}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </DashboardLayout>
   )
