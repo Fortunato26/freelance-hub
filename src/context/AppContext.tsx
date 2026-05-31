@@ -1,12 +1,13 @@
 'use client'
 
 import { createContext, useContext, useState, ReactNode } from 'react'
-import { Client, Project, Payment, DashboardStats } from '@/types'
+import { Client, Project, Payment, Task, DashboardStats } from '@/types'
 
 interface AppContextType {
   clients: Client[]
   projects: Project[]
   payments: Payment[]
+  tasks: Task[]
   addClient: (client: Omit<Client, 'id' | 'createdAt'>) => void
   updateClient: (id: string, data: Partial<Client>) => void
   deleteClient: (id: string) => void
@@ -14,9 +15,15 @@ interface AppContextType {
   updateProject: (id: string, data: Partial<Project>) => void
   deleteProject: (id: string) => void
   addPayment: (payment: Omit<Payment, 'id'>) => void
+  addTask: (task: Omit<Task, 'id' | 'createdAt'>) => void
+  updateTask: (id: string, data: Partial<Task>) => void
+  deleteTask: (id: string) => void
   getDashboardStats: () => DashboardStats
   getClientById: (id: string) => Client | undefined
+  getProjectById: (id: string) => Project | undefined
   getProjectsByClient: (clientId: string) => Project[]
+  getTasksByProject: (projectId: string) => Task[]
+  getPaymentsByProject: (projectId: string) => Payment[]
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined)
@@ -44,6 +51,19 @@ const initialPayments: Payment[] = [
   { id: '5', amount: 8000, date: new Date('2026-04-30'), type: 'receive', description: 'Dashboard Analytics - TechCorp', projectId: '4' },
 ]
 
+const initialTasks: Task[] = [
+  { id: '1', title: 'Criar wireframe do site', completed: true, createdAt: new Date('2026-05-01'), projectId: '1' },
+  { id: '2', title: 'Desenvolver homepage', completed: true, createdAt: new Date('2026-05-05'), projectId: '1' },
+  { id: '3', title: 'Implementar formulário de contato', completed: false, createdAt: new Date('2026-05-10'), projectId: '1' },
+  { id: '4', title: 'Configurar SEO', completed: false, createdAt: new Date('2026-05-12'), projectId: '1' },
+  { id: '5', title: 'Definir layout da loja', completed: true, createdAt: new Date('2026-05-10'), projectId: '2' },
+  { id: '6', title: 'Cadastrar produtos', completed: false, createdAt: new Date('2026-05-15'), projectId: '2' },
+  { id: '7', title: 'Configurar pagamentos', completed: false, createdAt: new Date('2026-05-18'), projectId: '2' },
+  { id: '8', title: 'Prototipar telas', completed: true, createdAt: new Date('2026-04-01'), projectId: '3' },
+  { id: '9', title: 'Desenvolver frontend', completed: true, createdAt: new Date('2026-04-10'), projectId: '3' },
+  { id: '10', title: 'Integrar API', completed: true, createdAt: new Date('2026-04-20'), projectId: '3' },
+]
+
 function generateId() {
   return Math.random().toString(36).substring(2) + Date.now().toString(36)
 }
@@ -52,13 +72,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [clients, setClients] = useState<Client[]>(initialClients)
   const [projects, setProjects] = useState<Project[]>(initialProjects)
   const [payments, setPayments] = useState<Payment[]>(initialPayments)
+  const [tasks, setTasks] = useState<Task[]>(initialTasks)
 
   const addClient = (clientData: Omit<Client, 'id' | 'createdAt'>) => {
-    const newClient: Client = {
-      ...clientData,
-      id: generateId(),
-      createdAt: new Date(),
-    }
+    const newClient: Client = { ...clientData, id: generateId(), createdAt: new Date() }
     setClients(prev => [newClient, ...prev])
   }
 
@@ -68,14 +85,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const deleteClient = (id: string) => {
     setClients(prev => prev.filter(c => c.id !== id))
+    setProjects(prev => prev.filter(p => p.clientId !== id))
   }
 
   const addProject = (projectData: Omit<Project, 'id' | 'createdAt'>) => {
-    const newProject: Project = {
-      ...projectData,
-      id: generateId(),
-      createdAt: new Date(),
-    }
+    const newProject: Project = { ...projectData, id: generateId(), createdAt: new Date() }
     setProjects(prev => [newProject, ...prev])
   }
 
@@ -85,14 +99,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const deleteProject = (id: string) => {
     setProjects(prev => prev.filter(p => p.id !== id))
+    setTasks(prev => prev.filter(t => t.projectId !== id))
+    setPayments(prev => prev.filter(p => p.projectId !== id))
   }
 
   const addPayment = (paymentData: Omit<Payment, 'id'>) => {
-    const newPayment: Payment = {
-      ...paymentData,
-      id: generateId(),
-    }
+    const newPayment: Payment = { ...paymentData, id: generateId() }
     setPayments(prev => [newPayment, ...prev])
+  }
+
+  const addTask = (taskData: Omit<Task, 'id' | 'createdAt'>) => {
+    const newTask: Task = { ...taskData, id: generateId(), createdAt: new Date() }
+    setTasks(prev => [newTask, ...prev])
+  }
+
+  const updateTask = (id: string, data: Partial<Task>) => {
+    setTasks(prev => prev.map(t => t.id === id ? { ...t, ...data } : t))
+  }
+
+  const deleteTask = (id: string) => {
+    setTasks(prev => prev.filter(t => t.id !== id))
   }
 
   const getDashboardStats = (): DashboardStats => {
@@ -102,35 +128,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const totalRevenue = payments.filter(p => p.type === 'receive').reduce((sum, p) => sum + p.amount, 0)
     const totalPaid = payments.filter(p => p.type === 'receive').reduce((sum, p) => sum + p.amount, 0)
     const totalPending = projects.filter(p => p.status !== 'paid').reduce((sum, p) => sum + p.value, 0)
-
-    return {
-      totalClients,
-      totalProjects,
-      activeProjects,
-      totalRevenue,
-      totalPaid,
-      totalPending,
-    }
+    return { totalClients, totalProjects, activeProjects, totalRevenue, totalPaid, totalPending }
   }
 
   const getClientById = (id: string) => clients.find(c => c.id === id)
+  const getProjectById = (id: string) => projects.find(p => p.id === id)
   const getProjectsByClient = (clientId: string) => projects.filter(p => p.clientId === clientId)
+  const getTasksByProject = (projectId: string) => tasks.filter(t => t.projectId === projectId)
+  const getPaymentsByProject = (projectId: string) => payments.filter(p => p.projectId === projectId)
 
   return (
     <AppContext.Provider value={{
-      clients,
-      projects,
-      payments,
-      addClient,
-      updateClient,
-      deleteClient,
-      addProject,
-      updateProject,
-      deleteProject,
-      addPayment,
-      getDashboardStats,
-      getClientById,
-      getProjectsByClient,
+      clients, projects, payments, tasks,
+      addClient, updateClient, deleteClient,
+      addProject, updateProject, deleteProject,
+      addPayment, addTask, updateTask, deleteTask,
+      getDashboardStats, getClientById, getProjectById,
+      getProjectsByClient, getTasksByProject, getPaymentsByProject,
     }}>
       {children}
     </AppContext.Provider>
@@ -139,8 +153,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
 export function useApp() {
   const context = useContext(AppContext)
-  if (!context) {
-    throw new Error('useApp must be used within an AppProvider')
-  }
+  if (!context) throw new Error('useApp must be used within an AppProvider')
   return context
 }
