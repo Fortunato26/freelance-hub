@@ -47,17 +47,22 @@ export function Sidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="w-64 bg-[#0a0a0a] border-r border-[#262626] min-h-screen p-4">
-      <div className="mb-8">
-        <h1 className="text-xl font-bold">
-          <span className="bg-gradient-to-r from-[#d4af37] to-[#f4d03f] bg-clip-text text-transparent">
-            Freelance
-          </span>
-          <span className="text-white">Hub</span>
-        </h1>
+    <aside className="w-64 bg-[#0a0a0a] border-r border-[#262626] min-h-screen flex flex-col">
+      <div className="p-4 border-b border-[#262626]">
+        <Link href="/" className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-[#d4af37] to-[#f4d03f] flex items-center justify-center">
+            <span className="text-[#0a0a0a] font-bold text-sm">FH</span>
+          </div>
+          <h1 className="text-lg font-bold">
+            <span className="bg-gradient-to-r from-[#d4af37] to-[#f4d03f] bg-clip-text text-transparent">
+              Freelance
+            </span>
+            <span className="text-white">Hub</span>
+          </h1>
+        </Link>
       </div>
 
-      <nav className="space-y-2">
+      <nav className="flex-1 p-4 space-y-2">
         {menuItems.map((item) => (
           <Link
             key={item.href}
@@ -75,12 +80,25 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <div className="absolute bottom-4 left-4 right-4">
+      <div className="p-4 border-t border-[#262626]">
         <div className="bg-[#1a1a1a] border border-[#262626] rounded-lg p-4">
-          <p className="text-xs text-[#525252]">Plano Gratuito</p>
-          <p className="text-sm text-white mt-1">3/5 clientes</p>
-          <div className="w-full bg-[#262626] rounded-full h-2 mt-2">
-            <div className="bg-[#d4af37] h-2 rounded-full" style={{ width: '60%' }} />
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-[#d4af37] flex items-center justify-center text-[#0a0a0a] font-bold">
+              GF
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-sm truncate">Gabriel Fortunato</p>
+              <p className="text-xs text-[#525252] truncate">Plano Gratuito</p>
+            </div>
+          </div>
+          <div className="mt-3">
+            <div className="flex justify-between text-xs mb-1">
+              <span className="text-[#525252]">Uso</span>
+              <span className="text-[#d4af37]">3/5</span>
+            </div>
+            <div className="w-full bg-[#262626] rounded-full h-1.5">
+              <div className="bg-[#d4af37] h-1.5 rounded-full" style={{ width: '60%' }} />
+            </div>
           </div>
         </div>
       </div>

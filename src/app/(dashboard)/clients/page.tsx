@@ -1,62 +1,179 @@
 'use client'
 
+import { useState } from 'react'
 import { DashboardLayout } from '@/components/DashboardLayout'
-import Link from 'next/link'
+import { useApp } from '@/context/AppContext'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Card, CardContent } from '@/components/ui/card'
 
 export default function ClientsPage() {
-  const clients = [
-    { id: '1', name: 'TechCorp', email: 'contato@techcorp.com', company: 'TechCorp Ltda', projects: 3 },
-    { id: '2', name: 'StartupXYZ', email: 'admin@startupxyz.com', company: 'StartupXYZ Inc', projects: 2 },
-    { id: '3', name: 'Digital Agency', email: 'hello@digital.com', company: 'Digital Agency', projects: 5 },
-  ]
+  const { clients, addClient, deleteClient } = useApp()
+  const [search, setSearch] = useState('')
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    company: '',
+    notes: '',
+  })
+
+  const filteredClients = clients.filter(client =>
+    client.name.toLowerCase().includes(search.toLowerCase()) ||
+    client.email?.toLowerCase().includes(search.toLowerCase()) ||
+    client.company?.toLowerCase().includes(search.toLowerCase())
+  )
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    addClient({
+      ...formData,
+      userId: 'user1',
+    })
+    setFormData({ name: '', email: '', phone: '', company: '', notes: '' })
+    setIsDialogOpen(false)
+  }
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Clientes</h1>
-          <Link
-            href="/clients/new"
-            className="bg-gradient-to-r from-[#d4af37] to-[#f4d03f] text-[#0a0a0a] font-semibold px-4 py-2 rounded-lg hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all"
+          <div>
+            <h1 className="text-2xl font-bold">Clientes</h1>
+            <p className="text-[#a3a3a3]">{clients.length} clientes cadastrados</p>
+          </div>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-gradient-to-r from-[#d4af37] to-[#f4d03f] text-[#0a0a0a] hover:shadow-[0_0_20px_rgba(212,175,55,0.3)]">
+                + Novo Cliente
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="bg-[#1a1a1a] border-[#262626]">
+              <DialogHeader>
+                <DialogTitle>Novo Cliente</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <Label htmlFor="name">Nome *</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="bg-[#0a0a0a] border-[#262626]"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="bg-[#0a0a0a] border-[#262626]"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="phone">Telefone</Label>
+                  <Input
+                    id="phone"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="bg-[#0a0a0a] border-[#262626]"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="company">Empresa</Label>
+                  <Input
+                    id="company"
+                    value={formData.company}
+                    onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                    className="bg-[#0a0a0a] border-[#262626]"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="notes">Observações</Label>
+                  <Input
+                    id="notes"
+                    value={formData.notes}
+                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                    className="bg-[#0a0a0a] border-[#262626]"
+                  />
+                </div>
+                <Button type="submit" className="w-full bg-gradient-to-r from-[#d4af37] to-[#f4d03f] text-[#0a0a0a]">
+                  Salvar Cliente
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        <div className="relative">
+          <Input
+            placeholder="Buscar clientes..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="bg-[#1a1a1a] border-[#262626] pl-10"
+          />
+          <svg
+            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#525252]"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            + Novo Cliente
-          </Link>
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
         </div>
 
-        <div className="bg-[#1a1a1a] border border-[#262626] rounded-xl overflow-hidden">
-          <div className="p-4 border-b border-[#262626]">
-            <input
-              type="text"
-              placeholder="Buscar clientes..."
-              className="w-full bg-[#0a0a0a] border border-[#262626] rounded-lg px-4 py-2 text-white placeholder-[#525252] focus:border-[#d4af37] focus:outline-none transition-colors"
-            />
-          </div>
-
-          <div className="divide-y divide-[#262626]">
-            {clients.map((client) => (
-              <div key={client.id} className="p-4 flex items-center justify-between hover:bg-[#0a0a0a] transition-colors">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-[#d4af37] flex items-center justify-center text-[#0a0a0a] font-bold">
-                    {client.name.charAt(0)}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredClients.map((client) => (
+            <Card key={client.id} className="bg-[#1a1a1a] border-[#262626] hover:border-[#b8960f] transition-colors">
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-[#d4af37] flex items-center justify-center text-[#0a0a0a] font-bold text-lg">
+                      {client.name.charAt(0)}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold">{client.name}</h3>
+                      {client.company && <p className="text-sm text-[#525252]">{client.company}</p>}
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium">{client.name}</p>
-                    <p className="text-sm text-[#525252]">{client.email}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-sm text-[#a3a3a3]">{client.projects} projetos</span>
-                  <Link
-                    href={`/clients/${client.id}`}
-                    className="text-[#d4af37] hover:underline text-sm"
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => deleteClient(client.id)}
+                    className="text-red-500 hover:text-red-400 hover:bg-red-500/10"
                   >
-                    Ver detalhes
-                  </Link>
+                    ✕
+                  </Button>
                 </div>
-              </div>
-            ))}
-          </div>
+                <div className="mt-4 space-y-2 text-sm">
+                  {client.email && (
+                    <p className="text-[#a3a3a3]">
+                      <span className="text-[#525252]">Email:</span> {client.email}
+                    </p>
+                  )}
+                  {client.phone && (
+                    <p className="text-[#a3a3a3]">
+                      <span className="text-[#525252]">Tel:</span> {client.phone}
+                    </p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
+
+        {filteredClients.length === 0 && (
+          <div className="text-center py-12 text-[#525252]">
+            <p className="text-lg">Nenhum cliente encontrado</p>
+            <p className="text-sm mt-2">Adicione seu primeiro cliente clicando no botão acima</p>
+          </div>
+        )}
       </div>
     </DashboardLayout>
   )
