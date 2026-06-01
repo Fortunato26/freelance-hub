@@ -112,7 +112,9 @@ export default function ProjectsPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    addProject({ name: formData.name, description: formData.description, value: parseFloat(formData.value), status: 'proposal', deadline: formData.deadline ? new Date(formData.deadline) : null, clientId: formData.clientId, userId: 'user1' })
+    const value = parseFloat(formData.value)
+    if (isNaN(value) || value <= 0) return
+    addProject({ name: formData.name, description: formData.description, value, status: 'proposal', deadline: formData.deadline ? new Date(formData.deadline) : null, clientId: formData.clientId, userId: 'user1' })
     setFormData({ name: '', description: '', value: '', clientId: '', deadline: '' })
     setIsDialogOpen(false)
   }

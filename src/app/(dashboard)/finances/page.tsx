@@ -60,9 +60,11 @@ export default function FinancesPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    const amount = parseFloat(formData.amount)
+    if (isNaN(amount) || amount <= 0) return
     addPayment({
       description: formData.description,
-      amount: parseFloat(formData.amount),
+      amount,
       type: formData.type,
       date: new Date(),
       projectId: formData.projectId,

@@ -70,9 +70,11 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
 
   const handleAddPayment = () => {
     if (newPayment.description && newPayment.amount) {
+      const amount = parseFloat(newPayment.amount)
+      if (isNaN(amount) || amount <= 0) return
       addPayment({
         description: newPayment.description,
-        amount: parseFloat(newPayment.amount),
+        amount,
         type: newPayment.type,
         date: new Date(),
         projectId: id,
@@ -221,8 +223,9 @@ export default function ProjectDetailsPage({ params }: { params: Promise<{ id: s
                         {task.title}
                       </span>
                       <button
-                        onClick={() => deleteTask(task.id)}
+                        onClick={() => { if (confirm('Tem certeza que deseja excluir esta tarefa?')) { deleteTask(task.id); } }}
                         className="text-[#525252] hover:text-red-500 transition-colors"
+                        aria-label="Excluir tarefa"
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

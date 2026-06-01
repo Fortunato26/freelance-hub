@@ -75,7 +75,7 @@ export default function ClientsPage() {
                         {client.company && <p className="text-sm text-[#525252]">{client.company}</p>}
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm" onClick={(e) => { e.preventDefault(); deleteClient(client.id); }} className="text-red-500 hover:text-red-400 hover:bg-red-500/10">✕</Button>
+                    <Button variant="ghost" size="sm" onClick={(e) => { e.preventDefault(); if (confirm('Tem certeza que deseja excluir este cliente?')) { deleteClient(client.id); } }} className="text-red-500 hover:text-red-400 hover:bg-red-500/10" aria-label="Excluir cliente">✕</Button>
                   </div>
                   <div className="mt-4 space-y-2 text-sm">
                     {client.email && <p className="text-[#a3a3a3]"><span className="text-[#525252]">Email:</span> {client.email}</p>}

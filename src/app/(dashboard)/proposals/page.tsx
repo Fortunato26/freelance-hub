@@ -21,8 +21,11 @@ export default function ProposalsPage() {
 
   const addItem = () => {
     if (newItem.description && newItem.value) {
-      setItems([...items, { description: newItem.description, value: parseFloat(newItem.value) }])
-      setNewItem({ description: '', value: '' })
+      const value = parseFloat(newItem.value)
+      if (!isNaN(value) && value > 0) {
+        setItems([...items, { description: newItem.description, value }])
+        setNewItem({ description: '', value: '' })
+      }
     }
   }
 
@@ -32,9 +35,103 @@ export default function ProposalsPage() {
 
   const total = items.reduce((sum, item) => sum + item.value, 0)
 
-  const handleGeneratePDF = () => {
-    // TODO: Implement PDF generation with @react-pdf/renderer
-    alert('Funcionalidade de PDF será implementada em breve!')
+  const handleGeneratePDF = async () => {
+    if (!project || !client || items.length === 0) return
+    
+    const { jsPDF } = await import('jspdf')
+    const doc = new jsPDF()
+    
+    // Header
+    doc.setFontSize(24)
+    doc.setTextColor(212, 175, 55)
+    doc.text('FreelanceHub', 20, 20)
+    
+    doc.setFontSize(10)
+    doc.setTextColor(100, 100, 100)
+    doc.text('PROPOSTA COMERCIAL', 20, 28)
+    doc.text(`Data: ${new Date().toLocaleDateString('pt-BR')}`, 150, 28)
+    
+    // Line
+    doc.setDrawColor(212, 175, 55)
+    doc.line(20, 32, 190, 32)
+    
+    // Title
+    doc.setFontSize(18)
+    doc.setTextColor(0, 0, 0)
+    doc.text(`Proposta: ${project.name}`, 20, 45)
+    
+    // Client info
+    doc.setFontSize(10)
+    doc.setTextColor(100, 100, 100)
+    doc.text(`Cliente: ${client.name}`, 20, 55)
+    if (client.email) doc.text(`Email: ${client.email}`, 20, 62)
+    if (client.company) doc.text(`Empresa: ${client.company}`, 20, 69)
+    
+    // Description
+    if (project.description) {
+      doc.setFontSize(11)
+      doc.setTextColor(0, 0, 0)
+      doc.text('Descrição:', 20, 85)
+      doc.setFontSize(10)
+      doc.setTextColor(80, 80, 80)
+      const splitDescription = doc.splitTextToSize(project.description, 170)
+      doc.text(splitDescription, 20, 92)
+    }
+    
+    // Items table
+    let y = project.description ? 110 : 90
+    doc.setFontSize(11)
+    doc.setTextColor(0, 0, 0)
+    doc.text('Itens da Proposta:', 20, y)
+    y += 8
+    
+    // Table header
+    doc.setFillColor(26, 26, 26)
+    doc.rect(20, y, 170, 8, 'F')
+    doc.setTextColor(255, 255, 255)
+    doc.setFontSize(9)
+    doc.text('Descrição', 22, y + 5.5)
+    doc.text('Valor', 150, y + 5.5)
+    y += 10
+    
+    // Table rows
+    doc.setTextColor(0, 0, 0)
+    items.forEach((item, index) => {
+      if (index % 2 === 0) {
+        doc.setFillColor(245, 245, 245)
+        doc.rect(20, y - 4, 170, 8, 'F')
+      }
+      doc.text(item.description, 22, y + 2)
+      doc.text(formatCurrency(item.value), 150, y + 2)
+      y += 8
+    })
+    
+    // Total
+    y += 5
+    doc.setDrawColor(212, 175, 55)
+    doc.line(20, y, 190, y)
+    y += 8
+    doc.setFontSize(12)
+    doc.setTextColor(0, 0, 0)
+    doc.text('TOTAL:', 130, y)
+    doc.setTextColor(212, 175, 55)
+    doc.text(formatCurrency(total), 155, y)
+    
+    // Deadline
+    if (project.deadline) {
+      y += 15
+      doc.setFontSize(10)
+      doc.setTextColor(100, 100, 100)
+      doc.text(`Prazo de entrega: ${new Date(project.deadline).toLocaleDateString('pt-BR')}`, 20, y)
+    }
+    
+    // Footer
+    doc.setFontSize(8)
+    doc.setTextColor(150, 150, 150)
+    doc.text('FreelanceHub - CRM para Freelancers', 20, 280)
+    doc.text('Este documento foi gerado automaticamente', 20, 285)
+    
+    doc.save(`proposta-${project.name.toLowerCase().replace(/\s+/g, '-')}.pdf`)
   }
 
   return (
@@ -87,7 +184,7 @@ export default function ProposalsPage() {
                       <span className="text-sm">{item.description}</span>
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-[#d4af37]">{formatCurrency(item.value)}</span>
-                        <button onClick={() => removeItem(index)} className="text-red-500 hover:text-red-400">✕</button>
+                        <button onClick={() => removeItem(index)} className="text-red-500 hover:text-red-400" aria-label="Remover item">✕</button>
                       </div>
                     </div>
                   ))}

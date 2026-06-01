@@ -1,11 +1,11 @@
 'use client'
 
+import { useState } from 'react'
 import { DashboardLayout } from '@/components/DashboardLayout'
 import { useApp } from '@/context/AppContext'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useState } from 'react'
 import { emailTemplates, getTemplate, renderTemplate } from '@/lib/emailTemplates'
 
 export default function TemplatesPage() {
@@ -14,6 +14,7 @@ export default function TemplatesPage() {
   const [selectedClient, setSelectedClient] = useState('')
   const [selectedProject, setSelectedProject] = useState('')
   const [preview, setPreview] = useState<{ subject: string; body: string } | null>(null)
+  const [copied, setCopied] = useState(false)
 
   const handlePreview = () => {
     const template = getTemplate(selectedTemplate)
@@ -39,6 +40,14 @@ export default function TemplatesPage() {
     })
 
     setPreview(rendered)
+  }
+
+  const handleCopy = async () => {
+    if (!preview) return
+    const text = `Assunto: ${preview.subject}\n\n${preview.body}`
+    await navigator.clipboard.writeText(text)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   return (
@@ -122,8 +131,8 @@ export default function TemplatesPage() {
                       {preview.body}
                     </div>
                   </div>
-                  <Button className="w-full" variant="outline">
-                    Copiar para Área de Transferência
+                  <Button onClick={handleCopy} className="w-full" variant="outline">
+                    {copied ? '✓ Copiado!' : 'Copiar para Área de Transferência'}
                   </Button>
                 </div>
               ) : (
