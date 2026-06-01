@@ -3,10 +3,44 @@
 // Mock Prisma client for development without database
 // Replace with real PrismaClient when database is connected
 
+import bcrypt from 'bcryptjs'
+
+const adminUser = {
+  id: 'admin-001',
+  email: 'admin@freelancehub.com',
+  name: 'Administrador',
+  password: null as string | null,
+  emailVerified: new Date(),
+  image: null,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+}
+
+// Generate password hash on module load
+const initializeAdmin = async () => {
+  if (!adminUser.password) {
+    adminUser.password = await bcrypt.hash('admin123', 10)
+  }
+}
+
+// Initialize admin password hash
+initializeAdmin()
+
 const createMockModel = () => ({
   findMany: async () => [],
-  findUnique: async () => null,
-  findFirst: async () => null,
+  findUnique: async ({ where }: any) => {
+    // Return admin user when searching by email
+    if (where?.email === adminUser.email) {
+      return adminUser
+    }
+    return null
+  },
+  findFirst: async ({ where }: any) => {
+    if (where?.email === adminUser.email) {
+      return adminUser
+    }
+    return null
+  },
   create: async (args: any) => ({ id: 'mock-id', ...args?.data }),
   update: async (args: any) => ({ id: args?.where?.id, ...args?.data }),
   delete: async () => null,
