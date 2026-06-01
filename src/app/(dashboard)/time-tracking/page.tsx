@@ -9,7 +9,7 @@ export default function TimeTrackingPage() {
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold">Controle de Horas</h1>
-          <p className="text-[#a3a3a3]">Registre o tempo gasto em cada projeto</p>
+          <p className="text-gray-500">Registre o tempo gasto em cada projeto</p>
         </div>
         <TimeTracker />
       </div>

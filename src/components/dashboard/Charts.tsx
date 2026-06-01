@@ -17,7 +17,7 @@ import {
 } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-const COLORS = ['#d4af37', '#f4d03f', '#c9a227', '#b8960f', '#a38900']
+const COLORS = ['#3b82f6', '#60a5fa', '#2563eb', '#1d4ed8', '#1e40af']
 
 export function RevenueChart() {
   const { payments } = useApp()
@@ -44,7 +44,7 @@ export function RevenueChart() {
   }
 
   return (
-    <Card className="bg-[#1a1a1a] border-[#262626]">
+    <Card className="bg-white border-gray-200">
       <CardHeader>
         <CardTitle className="text-lg">Receitas vs Despesas</CardTitle>
       </CardHeader>
@@ -52,16 +52,16 @@ export function RevenueChart() {
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#262626" />
-              <XAxis dataKey="month" stroke="#525252" fontSize={12} />
-              <YAxis stroke="#525252" fontSize={12} tickFormatter={(value) => `R$${(value / 1000).toFixed(0)}k`} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis dataKey="month" stroke="#6b7280" fontSize={12} />
+              <YAxis stroke="#6b7280" fontSize={12} tickFormatter={(value) => `R$${(value / 1000).toFixed(0)}k`} />
               <Tooltip
-                contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #262626', borderRadius: '8px' }}
-                labelStyle={{ color: '#fff' }}
+                contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                labelStyle={{ color: '#111827' }}
                 formatter={(value) => [formatCurrency(Number(value))]}
               />
-              <Legend wrapperStyle={{ color: '#a3a3a3' }} />
-              <Bar dataKey="revenue" name="Receita" fill="#d4af37" radius={[4, 4, 0, 0]} />
+              <Legend wrapperStyle={{ color: '#6b7280' }} />
+              <Bar dataKey="revenue" name="Receita" fill="#3b82f6" radius={[4, 4, 0, 0]} />
               <Bar dataKey="expenses" name="Despesa" fill="#ef4444" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -99,7 +99,7 @@ export function ProjectsByStatusChart() {
   }
 
   return (
-    <Card className="bg-[#1a1a1a] border-[#262626]">
+    <Card className="bg-white border-gray-200">
       <CardHeader>
         <CardTitle className="text-lg">Projetos por Status</CardTitle>
       </CardHeader>
@@ -121,12 +121,12 @@ export function ProjectsByStatusChart() {
                 ))}
               </Pie>
               <Tooltip
-                contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #262626', borderRadius: '8px' }}
+                contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
                 formatter={(value) => [`${value} projetos`]}
               />
               <Legend
-                wrapperStyle={{ color: '#a3a3a3' }}
-                formatter={(value) => <span style={{ color: '#a3a3a3' }}>{value}</span>}
+                wrapperStyle={{ color: '#6b7280' }}
+                formatter={(value) => <span style={{ color: '#6b7280' }}>{value}</span>}
               />
             </PieChart>
           </ResponsiveContainer>
@@ -159,7 +159,7 @@ export function TopClientsChart() {
   }
 
   return (
-    <Card className="bg-[#1a1a1a] border-[#262626]">
+    <Card className="bg-white border-gray-200">
       <CardHeader>
         <CardTitle className="text-lg">Top Clientes por Valor</CardTitle>
       </CardHeader>
@@ -167,14 +167,14 @@ export function TopClientsChart() {
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={clientData} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" stroke="#262626" />
-              <XAxis type="number" stroke="#525252" fontSize={12} tickFormatter={(value) => `R$${(value / 1000).toFixed(0)}k`} />
-              <YAxis type="category" dataKey="name" stroke="#525252" fontSize={12} width={80} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+              <XAxis type="number" stroke="#6b7280" fontSize={12} tickFormatter={(value) => `R$${(value / 1000).toFixed(0)}k`} />
+              <YAxis type="category" dataKey="name" stroke="#6b7280" fontSize={12} width={80} />
               <Tooltip
-                contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #262626', borderRadius: '8px' }}
+                contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
                 formatter={(value) => [formatCurrency(Number(value))]}
               />
-              <Bar dataKey="value" fill="#d4af37" radius={[0, 4, 4, 0]} />
+              <Bar dataKey="value" fill="#3b82f6" radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

@@ -139,11 +139,11 @@ export default function ProposalsPage() {
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold">Propostas Comerciais</h1>
-          <p className="text-[#a3a3a3]">Gere propostas profissionais para seus clientes</p>
+          <p className="text-gray-500">Gere propostas profissionais para seus clientes</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="bg-[#1a1a1a] border-[#262626]">
+          <Card className="bg-white border-gray-200">
             <CardHeader>
               <CardTitle>Nova Proposta</CardTitle>
             </CardHeader>
@@ -151,10 +151,10 @@ export default function ProposalsPage() {
               <div>
                 <Label>Projeto *</Label>
                 <Select value={selectedProject} onValueChange={setSelectedProject}>
-                  <SelectTrigger className="bg-[#0a0a0a] border-[#262626]">
+                  <SelectTrigger className="bg-gray-50 border-gray-200">
                     <SelectValue placeholder="Selecione um projeto" />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#1a1a1a] border-[#262626]">
+                  <SelectContent className="bg-white border-gray-200">
                     {projects.map((project) => (
                       <SelectItem key={project.id} value={project.id}>{project.name}</SelectItem>
                     ))}
@@ -163,55 +163,55 @@ export default function ProposalsPage() {
               </div>
 
               {client && (
-                <div className="p-3 bg-[#0a0a0a] rounded-lg border border-[#262626]">
-                  <p className="text-sm text-[#525252]">Cliente</p>
+                <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <p className="text-sm text-gray-400">Cliente</p>
                   <p className="font-medium">{client.name}</p>
-                  {client.email && <p className="text-sm text-[#a3a3a3]">{client.email}</p>}
+                  {client.email && <p className="text-sm text-gray-500">{client.email}</p>}
                 </div>
               )}
 
-              <div className="border-t border-[#262626] pt-4">
+              <div className="border-t border-gray-200 pt-4">
                 <Label>Itens da Proposta</Label>
                 <div className="flex gap-2 mt-2">
-                  <Input placeholder="Descrição" value={newItem.description} onChange={(e) => setNewItem({ ...newItem, description: e.target.value })} className="flex-1 bg-[#0a0a0a] border-[#262626]" />
-                  <Input type="number" placeholder="Valor" value={newItem.value} onChange={(e) => setNewItem({ ...newItem, value: e.target.value })} className="w-32 bg-[#0a0a0a] border-[#262626]" />
-                  <Button onClick={addItem} variant="outline" className="border-[#262626]">+</Button>
+                  <Input placeholder="Descrição" value={newItem.description} onChange={(e) => setNewItem({ ...newItem, description: e.target.value })} className="flex-1 bg-gray-50 border-gray-200" />
+                  <Input type="number" placeholder="Valor" value={newItem.value} onChange={(e) => setNewItem({ ...newItem, value: e.target.value })} className="w-32 bg-gray-50 border-gray-200" />
+                  <Button onClick={addItem} variant="outline" className="border-gray-200">+</Button>
                 </div>
 
                 <div className="space-y-2 mt-4">
                   {items.map((item, index) => (
-                    <div key={index} className="flex items-center justify-between p-2 bg-[#0a0a0a] rounded border border-[#262626]">
+                    <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-200">
                       <span className="text-sm">{item.description}</span>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm text-[#d4af37]">{formatCurrency(item.value)}</span>
+                        <span className="text-sm text-blue-600">{formatCurrency(item.value)}</span>
                         <button onClick={() => removeItem(index)} className="text-red-500 hover:text-red-400" aria-label="Remover item">✕</button>
                       </div>
                     </div>
                   ))}
                 </div>
 
-                <div className="flex justify-between mt-4 pt-4 border-t border-[#262626]">
+                <div className="flex justify-between mt-4 pt-4 border-t border-gray-200">
                   <span className="font-semibold">Total</span>
-                  <span className="font-bold text-[#d4af37]">{formatCurrency(total)}</span>
+                  <span className="font-bold text-blue-600">{formatCurrency(total)}</span>
                 </div>
               </div>
 
-              <Button onClick={handleGeneratePDF} disabled={!selectedProject || items.length === 0} className="w-full bg-gradient-to-r from-[#d4af37] to-[#f4d03f] text-[#0a0a0a]">
+              <Button onClick={handleGeneratePDF} disabled={!selectedProject || items.length === 0} className="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white">
                 Gerar Proposta PDF
               </Button>
             </CardContent>
           </Card>
 
-          <Card className="bg-[#1a1a1a] border-[#262626]">
+          <Card className="bg-white border-gray-200">
             <CardHeader>
               <CardTitle>Preview</CardTitle>
             </CardHeader>
             <CardContent>
               {project && client ? (
                 <div className="space-y-4 p-4 bg-white rounded-lg text-black">
-                  <div className="flex justify-between items-start border-b-2 border-[#d4af37] pb-4">
+                  <div className="flex justify-between items-start border-b-2 border-blue-600 pb-4">
                     <div>
-                      <h2 className="text-xl font-bold text-[#d4af37]">FreelanceHub</h2>
+                      <h2 className="text-xl font-bold text-blue-600">FreelanceHub</h2>
                       <p className="text-sm text-gray-500">PROPOSTA COMERCIAL</p>
                     </div>
                     <div className="text-right text-sm">
@@ -258,7 +258,7 @@ export default function ProposalsPage() {
                   )}
                 </div>
               ) : (
-                <div className="text-center py-12 text-[#525252]">
+                <div className="text-center py-12 text-gray-400">
                   <p>Selecione um projeto para visualizar</p>
                   <p className="text-sm mt-2">a proposta</p>
                 </div>

@@ -50,48 +50,48 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold">
-            <span className="bg-gradient-to-r from-[#d4af37] to-[#f4d03f] bg-clip-text text-transparent">Freelance</span>
-            <span className="text-white">Hub</span>
-          </h1>
-          <p className="text-[#525252] mt-2">Crie sua conta</p>
+          <div className="w-12 h-12 mx-auto mb-4 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+            <span className="text-white font-bold text-xl">FH</span>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900">FreelanceHub</h1>
+          <p className="text-gray-500 mt-1">Crie sua conta</p>
         </div>
 
-        <div className="bg-[#1a1a1a] border border-[#262626] rounded-xl p-6">
+        <div className="bg-white rounded-xl border border-gray-200 shadow-rd p-6">
           {error && (
-            <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label className="text-[#a3a3a3]">Nome</Label>
-              <Input type="text" value={name} onChange={(e) => setName(e.target.value)} className="bg-[#0a0a0a] border-[#262626] mt-1" placeholder="Seu nome" required />
+              <Label className="text-gray-700">Nome</Label>
+              <Input type="text" value={name} onChange={(e) => setName(e.target.value)} className="mt-1" placeholder="Seu nome" required />
             </div>
             <div>
-              <Label className="text-[#a3a3a3]">Email</Label>
-              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="bg-[#0a0a0a] border-[#262626] mt-1" placeholder="seu@email.com" required />
+              <Label className="text-gray-700">Email</Label>
+              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1" placeholder="seu@email.com" required />
             </div>
             <div>
-              <Label className="text-[#a3a3a3]">Senha</Label>
-              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="bg-[#0a0a0a] border-[#262626] mt-1" placeholder="••••••••" required minLength={6} />
+              <Label className="text-gray-700">Senha</Label>
+              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="mt-1" placeholder="••••••••" required minLength={6} />
             </div>
             <div>
-              <Label className="text-[#a3a3a3]">Confirmar Senha</Label>
-              <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="bg-[#0a0a0a] border-[#262626] mt-1" placeholder="••••••••" required />
+              <Label className="text-gray-700">Confirmar Senha</Label>
+              <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="mt-1" placeholder="••••••••" required />
             </div>
-            <Button type="submit" disabled={loading} className="w-full bg-gradient-to-r from-[#d4af37] to-[#f4d03f] text-[#0a0a0a] font-semibold">
+            <Button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
               {loading ? 'Criando conta...' : 'Criar Conta'}
             </Button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-[#525252]">
+          <p className="mt-6 text-center text-sm text-gray-500">
             Já tem uma conta?{' '}
-            <Link href="/login" className="text-[#d4af37] hover:underline">Entre</Link>
+            <Link href="/login" className="text-blue-600 hover:underline font-medium">Entre</Link>
           </p>
         </div>
       </div>

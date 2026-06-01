@@ -37,15 +37,15 @@ export function Calendar() {
   }
 
   return (
-    <Card className="bg-[#1a1a1a] border-[#262626]">
+    <Card className="bg-white border-gray-200">
       <CardHeader className="flex flex-row items-center justify-between">
-        <Button variant="ghost" size="sm" onClick={prevMonth} className="text-[#a3a3a3] hover:text-white">
+        <Button variant="ghost" size="sm" onClick={prevMonth} className="text-gray-500 hover:text-gray-900">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </Button>
         <CardTitle className="text-lg">{monthNames[month]} {year}</CardTitle>
-        <Button variant="ghost" size="sm" onClick={nextMonth} className="text-[#a3a3a3] hover:text-white">
+        <Button variant="ghost" size="sm" onClick={nextMonth} className="text-gray-500 hover:text-gray-900">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
@@ -54,7 +54,7 @@ export function Calendar() {
       <CardContent>
         <div className="grid grid-cols-7 gap-1">
           {weekDays.map((day) => (
-            <div key={day} className="text-center text-xs text-[#525252] py-2 font-medium">
+            <div key={day} className="text-center text-xs text-gray-400 py-2 font-medium">
               {day}
             </div>
           ))}
@@ -71,14 +71,14 @@ export function Calendar() {
               <div
                 key={day}
                 className={`h-10 flex flex-col items-center justify-center rounded-lg cursor-pointer transition-colors ${
-                  isToday(day) ? 'bg-[#d4af37] text-[#0a0a0a] font-bold' : 'hover:bg-[#0a0a0a]'
+                  isToday(day) ? 'bg-blue-600 text-white font-bold' : 'hover:bg-gray-50'
                 }`}
               >
                 <span className="text-sm">{day}</span>
                 {events.length > 0 && (
                   <div className="flex gap-0.5 mt-0.5">
                     {events.slice(0, 2).map((_, j) => (
-                      <div key={j} className="w-1 h-1 rounded-full bg-[#d4af37]" />
+                      <div key={j} className="w-1 h-1 rounded-full bg-blue-600" />
                     ))}
                   </div>
                 )}
@@ -87,8 +87,8 @@ export function Calendar() {
           })}
         </div>
 
-        <div className="mt-4 pt-4 border-t border-[#262626]">
-          <h4 className="text-sm font-medium text-[#525252] mb-2">Prazos deste mês</h4>
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <h4 className="text-sm font-medium text-gray-400 mb-2">Prazos deste mês</h4>
           <div className="space-y-2">
             {projects
               .filter(p => {
@@ -98,14 +98,14 @@ export function Calendar() {
               })
               .sort((a, b) => new Date(a.deadline!).getTime() - new Date(b.deadline!).getTime())
               .map((project) => (
-                <div key={project.id} className="flex items-center justify-between p-2 bg-[#0a0a0a] rounded text-sm">
-                  <span className="text-[#a3a3a3]">{project.name}</span>
-                  <span className="text-[#d4af37]">{new Date(project.deadline!).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}</span>
+                <div key={project.id} className="flex items-center justify-between p-2 bg-gray-50 rounded text-sm">
+                  <span className="text-gray-500">{project.name}</span>
+                  <span className="text-blue-600">{new Date(project.deadline!).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}</span>
                 </div>
               ))
             }
             {projects.filter(p => p.deadline && new Date(p.deadline).getMonth() === month && new Date(p.deadline).getFullYear() === year).length === 0 && (
-              <p className="text-xs text-[#525252] text-center py-2">Nenhum prazo este mês</p>
+              <p className="text-xs text-gray-400 text-center py-2">Nenhum prazo este mês</p>
             )}
           </div>
         </div>

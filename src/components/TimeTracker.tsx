@@ -96,17 +96,17 @@ export function TimeTracker() {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-[#1a1a1a] border-[#262626]">
+      <Card className="bg-white border-gray-200">
         <CardHeader>
           <CardTitle>Timer de Horas</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center gap-4">
             <Select value={timer.projectId || ''} onValueChange={(value) => setTimer(prev => ({ ...prev, projectId: value }))} disabled={timer.isRunning}>
-              <SelectTrigger className="flex-1 bg-[#0a0a0a] border-[#262626]">
+              <SelectTrigger className="flex-1 bg-gray-50 border-gray-200">
                 <SelectValue placeholder="Selecione um projeto" />
               </SelectTrigger>
-              <SelectContent className="bg-[#1a1a1a] border-[#262626]">
+              <SelectContent className="bg-white border-gray-200">
                 {projects.map((project) => (
                   <SelectItem key={project.id} value={project.id}>{project.name}</SelectItem>
                 ))}
@@ -119,12 +119,12 @@ export function TimeTracker() {
             placeholder="Descrição da atividade (opcional)"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full bg-[#0a0a0a] border border-[#262626] rounded-lg px-4 py-2 text-white placeholder-[#525252] focus:border-[#d4af37] focus:outline-none"
+            className="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2 text-gray-900 placeholder-gray-400 focus:border-blue-600 focus:outline-none"
             disabled={timer.isRunning}
           />
 
           <div className="flex items-center justify-center gap-6">
-            <div className="text-5xl font-mono font-bold text-[#d4af37]">
+            <div className="text-5xl font-mono font-bold text-blue-600">
               {formatTime(timer.elapsed)}
             </div>
           </div>
@@ -156,26 +156,26 @@ export function TimeTracker() {
         </CardContent>
       </Card>
 
-      <Card className="bg-[#1a1a1a] border-[#262626]">
+      <Card className="bg-white border-gray-200">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Histórico</CardTitle>
-          <span className="text-sm text-[#525252]">{entries.length} registros • {totalHours.toFixed(1)}h total</span>
+          <span className="text-sm text-gray-400">{entries.length} registros • {totalHours.toFixed(1)}h total</span>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
             {entries.length === 0 ? (
-              <p className="text-center text-[#525252] py-8">Nenhum registro de horas</p>
+              <p className="text-center text-gray-400 py-8">Nenhum registro de horas</p>
             ) : (
               entries.map((entry) => (
-                <div key={entry.id} className="flex items-center justify-between p-3 bg-[#0a0a0a] rounded-lg border border-[#262626]">
+                <div key={entry.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
                   <div>
                     <p className="font-medium">{getProjectName(entry.projectId)}</p>
-                    <p className="text-sm text-[#525252]">
+                    <p className="text-sm text-gray-400">
                       {entry.description && `${entry.description} • `}
                       {new Date(entry.startTime).toLocaleDateString('pt-BR')}
                     </p>
                   </div>
-                  <span className="font-mono text-[#d4af37]">{formatTime(entry.duration)}</span>
+                  <span className="font-mono text-blue-600">{formatTime(entry.duration)}</span>
                 </div>
               ))
             )}

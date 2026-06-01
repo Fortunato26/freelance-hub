@@ -55,22 +55,22 @@ export default function TemplatesPage() {
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold">Templates de E-mail</h1>
-          <p className="text-[#a3a3a3]">Templates prontos para envio</p>
+          <p className="text-gray-500">Templates prontos para envio</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="bg-[#1a1a1a] border-[#262626]">
+          <Card className="bg-white border-gray-200">
             <CardHeader>
               <CardTitle>Configurar Template</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="text-sm text-[#525252] mb-2 block">Template</label>
+                <label className="text-sm text-gray-400 mb-2 block">Template</label>
                 <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
-                  <SelectTrigger className="bg-[#0a0a0a] border-[#262626]">
+                  <SelectTrigger className="bg-gray-50 border-gray-200">
                     <SelectValue placeholder="Selecione um template" />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#1a1a1a] border-[#262626]">
+                  <SelectContent className="bg-white border-gray-200">
                     {emailTemplates.map((template) => (
                       <SelectItem key={template.id} value={template.id}>{template.name}</SelectItem>
                     ))}
@@ -79,12 +79,12 @@ export default function TemplatesPage() {
               </div>
 
               <div>
-                <label className="text-sm text-[#525252] mb-2 block">Cliente</label>
+                <label className="text-sm text-gray-400 mb-2 block">Cliente</label>
                 <Select value={selectedClient} onValueChange={setSelectedClient}>
-                  <SelectTrigger className="bg-[#0a0a0a] border-[#262626]">
+                  <SelectTrigger className="bg-gray-50 border-gray-200">
                     <SelectValue placeholder="Selecione um cliente" />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#1a1a1a] border-[#262626]">
+                  <SelectContent className="bg-white border-gray-200">
                     {clients.map((client) => (
                       <SelectItem key={client.id} value={client.id}>{client.name}</SelectItem>
                     ))}
@@ -93,12 +93,12 @@ export default function TemplatesPage() {
               </div>
 
               <div>
-                <label className="text-sm text-[#525252] mb-2 block">Projeto</label>
+                <label className="text-sm text-gray-400 mb-2 block">Projeto</label>
                 <Select value={selectedProject} onValueChange={setSelectedProject}>
-                  <SelectTrigger className="bg-[#0a0a0a] border-[#262626]">
+                  <SelectTrigger className="bg-gray-50 border-gray-200">
                     <SelectValue placeholder="Selecione um projeto" />
                   </SelectTrigger>
-                  <SelectContent className="bg-[#1a1a1a] border-[#262626]">
+                  <SelectContent className="bg-white border-gray-200">
                     {projects.map((project) => (
                       <SelectItem key={project.id} value={project.id}>{project.name}</SelectItem>
                     ))}
@@ -106,13 +106,13 @@ export default function TemplatesPage() {
                 </Select>
               </div>
 
-              <Button onClick={handlePreview} disabled={!selectedTemplate || !selectedClient || !selectedProject} className="w-full bg-gradient-to-r from-[#d4af37] to-[#f4d03f] text-[#0a0a0a]">
+              <Button onClick={handlePreview} disabled={!selectedTemplate || !selectedClient || !selectedProject} className="w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white">
                 Gerar Preview
               </Button>
             </CardContent>
           </Card>
 
-          <Card className="bg-[#1a1a1a] border-[#262626]">
+          <Card className="bg-white border-gray-200">
             <CardHeader>
               <CardTitle>Preview</CardTitle>
             </CardHeader>
@@ -120,14 +120,14 @@ export default function TemplatesPage() {
               {preview ? (
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm text-[#525252] mb-1 block">Assunto</label>
-                    <div className="p-3 bg-[#0a0a0a] rounded-lg border border-[#262626] text-sm">
+                    <label className="text-sm text-gray-400 mb-1 block">Assunto</label>
+                    <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 text-sm">
                       {preview.subject}
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm text-[#525252] mb-1 block">Corpo</label>
-                    <div className="p-3 bg-[#0a0a0a] rounded-lg border border-[#262626] text-sm whitespace-pre-wrap">
+                    <label className="text-sm text-gray-400 mb-1 block">Corpo</label>
+                    <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 text-sm whitespace-pre-wrap">
                       {preview.body}
                     </div>
                   </div>
@@ -136,7 +136,7 @@ export default function TemplatesPage() {
                   </Button>
                 </div>
               ) : (
-                <div className="text-center py-12 text-[#525252]">
+                <div className="text-center py-12 text-gray-400">
                   <p>Selecione um template, cliente e projeto</p>
                   <p className="text-sm mt-2">para visualizar o preview</p>
                 </div>
@@ -145,16 +145,16 @@ export default function TemplatesPage() {
           </Card>
         </div>
 
-        <Card className="bg-[#1a1a1a] border-[#262626]">
+        <Card className="bg-white border-gray-200">
           <CardHeader>
             <CardTitle>Templates Disponíveis</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {emailTemplates.map((template) => (
-                <div key={template.id} className="p-4 bg-[#0a0a0a] rounded-lg border border-[#262626] hover:border-[#b8960f] transition-colors cursor-pointer" onClick={() => setSelectedTemplate(template.id)}>
+                <div key={template.id} className="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-blue-200 transition-colors cursor-pointer" onClick={() => setSelectedTemplate(template.id)}>
                   <h4 className="font-medium">{template.name}</h4>
-                  <p className="text-sm text-[#525252] mt-1">{template.variables.length} variáveis</p>
+                  <p className="text-sm text-gray-400 mt-1">{template.variables.length} variáveis</p>
                 </div>
               ))}
             </div>
