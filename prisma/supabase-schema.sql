@@ -3,7 +3,7 @@
 
 -- Tabela de Usuários
 CREATE TABLE IF NOT EXISTS "User" (
-    "id" TEXT NOT NULL DEFAULT cuid(),
+    "id" TEXT NOT NULL DEFAULT gen_random_uuid()::text,
     "email" TEXT NOT NULL,
     "name" TEXT,
     "password" TEXT,
@@ -17,7 +17,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS "User_email_key" ON "User"("email");
 
 -- Tabela de Accounts (NextAuth)
 CREATE TABLE IF NOT EXISTS "Account" (
-    "id" TEXT NOT NULL DEFAULT cuid(),
+    "id" TEXT NOT NULL DEFAULT gen_random_uuid()::text,
     "userId" TEXT NOT NULL,
     "type" TEXT NOT NULL,
     "provider" TEXT NOT NULL,
@@ -35,7 +35,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS "Account_provider_providerAccountId_key" ON "A
 
 -- Tabela de Sessions (NextAuth)
 CREATE TABLE IF NOT EXISTS "Session" (
-    "id" TEXT NOT NULL DEFAULT cuid(),
+    "id" TEXT NOT NULL DEFAULT gen_random_uuid()::text,
     "sessionToken" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "expires" TIMESTAMP(3) NOT NULL,
@@ -54,7 +54,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS "VerificationToken_token_key" ON "Verification
 
 -- Tabela de Clientes
 CREATE TABLE IF NOT EXISTS "Client" (
-    "id" TEXT NOT NULL DEFAULT cuid(),
+    "id" TEXT NOT NULL DEFAULT gen_random_uuid()::text,
     "name" TEXT NOT NULL,
     "email" TEXT,
     "phone" TEXT,
@@ -69,7 +69,7 @@ CREATE INDEX IF NOT EXISTS "Client_userId_idx" ON "Client"("userId");
 
 -- Tabela de Projetos/Negócios
 CREATE TABLE IF NOT EXISTS "Project" (
-    "id" TEXT NOT NULL DEFAULT cuid(),
+    "id" TEXT NOT NULL DEFAULT gen_random_uuid()::text,
     "name" TEXT NOT NULL,
     "description" TEXT,
     "value" DOUBLE PRECISION NOT NULL DEFAULT 0,
@@ -87,7 +87,7 @@ CREATE INDEX IF NOT EXISTS "Project_status_idx" ON "Project"("status");
 
 -- Tabela de Tarefas
 CREATE TABLE IF NOT EXISTS "Task" (
-    "id" TEXT NOT NULL DEFAULT cuid(),
+    "id" TEXT NOT NULL DEFAULT gen_random_uuid()::text,
     "title" TEXT NOT NULL,
     "completed" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -98,7 +98,7 @@ CREATE INDEX IF NOT EXISTS "Task_projectId_idx" ON "Task"("projectId");
 
 -- Tabela de Pagamentos
 CREATE TABLE IF NOT EXISTS "Payment" (
-    "id" TEXT NOT NULL DEFAULT cuid(),
+    "id" TEXT NOT NULL DEFAULT gen_random_uuid()::text,
     "amount" DOUBLE PRECISION NOT NULL,
     "date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "type" TEXT NOT NULL,
@@ -111,7 +111,7 @@ CREATE INDEX IF NOT EXISTS "Payment_type_idx" ON "Payment"("type");
 
 -- Tabela de Controle de Horas
 CREATE TABLE IF NOT EXISTS "TimeEntry" (
-    "id" TEXT NOT NULL DEFAULT cuid(),
+    "id" TEXT NOT NULL DEFAULT gen_random_uuid()::text,
     "description" TEXT,
     "startTime" TIMESTAMP(3) NOT NULL,
     "endTime" TIMESTAMP(3),
