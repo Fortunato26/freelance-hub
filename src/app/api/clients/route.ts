@@ -12,7 +12,7 @@ export async function GET() {
       orderBy: { createdAt: 'desc' }
     })
     return NextResponse.json(clients)
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Erro ao buscar clientes' }, { status: 500 })
   }
 }
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     })
 
     return NextResponse.json(client, { status: 201 })
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Erro ao criar cliente' }, { status: 500 })
   }
 }

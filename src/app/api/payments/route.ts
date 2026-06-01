@@ -10,7 +10,7 @@ export async function GET() {
       orderBy: { date: 'desc' }
     })
     return NextResponse.json(payments)
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Erro ao buscar pagamentos' }, { status: 500 })
   }
 }
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     })
 
     return NextResponse.json(payment, { status: 201 })
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Erro ao criar pagamento' }, { status: 500 })
   }
 }

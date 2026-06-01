@@ -51,7 +51,7 @@ export default function RegisterPage() {
       }
 
       router.push('/login')
-    } catch (err) {
+    } catch {
       setError('Erro ao criar conta')
     } finally {
       setLoading(false)
