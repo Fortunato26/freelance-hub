@@ -37,7 +37,7 @@ export default function Home() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-rd card-hover">
+          <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <span className="text-gray-500 text-sm">Total de Clientes</span>
               <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
@@ -49,7 +49,7 @@ export default function Home() {
             <p className="text-2xl font-bold text-gray-900">{stats.totalClients}</p>
           </div>
 
-          <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-rd card-hover">
+          <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <span className="text-gray-500 text-sm">Negócios Ativos</span>
               <div className="w-10 h-10 rounded-lg bg-purple-50 flex items-center justify-center">
@@ -61,7 +61,7 @@ export default function Home() {
             <p className="text-2xl font-bold text-gray-900">{stats.activeProjects}</p>
           </div>
 
-          <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-rd card-hover">
+          <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <span className="text-gray-500 text-sm">Receita Total</span>
               <div className="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center">
@@ -73,7 +73,7 @@ export default function Home() {
             <p className="text-2xl font-bold text-green-600">{formatCurrency(stats.totalRevenue)}</p>
           </div>
 
-          <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-rd card-hover">
+          <div className="bg-white rounded-xl p-5 border border-gray-200 shadow-sm">
             <div className="flex items-center justify-between mb-3">
               <span className="text-gray-500 text-sm">A Receber</span>
               <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center">
@@ -88,16 +88,16 @@ export default function Home() {
 
         {/* Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          <div className="bg-white rounded-xl border border-gray-200 shadow-rd p-5">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
             <h3 className="text-base font-semibold text-gray-900 mb-4">Receitas vs Despesas</h3>
-            <div className="h-[280px]">
+            <div className="h-[300px]">
               <RevenueChart />
             </div>
           </div>
 
-          <div className="bg-white rounded-xl border border-gray-200 shadow-rd p-5">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
             <h3 className="text-base font-semibold text-gray-900 mb-4">Negócios por Status</h3>
-            <div className="h-[280px]">
+            <div className="h-[300px]">
               <ProjectsByStatusChart />
             </div>
           </div>
@@ -106,7 +106,7 @@ export default function Home() {
         {/* Bottom Row */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Recent Projects */}
-          <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 shadow-rd">
+          <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm">
             <div className="px-5 py-4 border-b border-gray-100">
               <h3 className="text-base font-semibold text-gray-900">Negócios Recentes</h3>
             </div>
@@ -148,7 +148,7 @@ export default function Home() {
           </div>
 
           {/* Recent Transactions */}
-          <div className="bg-white rounded-xl border border-gray-200 shadow-rd">
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
             <div className="px-5 py-4 border-b border-gray-100">
               <h3 className="text-base font-semibold text-gray-900">Últimas Transações</h3>
             </div>

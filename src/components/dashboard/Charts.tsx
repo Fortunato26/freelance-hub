@@ -15,7 +15,6 @@ import {
   Cell,
   Legend,
 } from 'recharts'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 const COLORS = ['#3b82f6', '#60a5fa', '#2563eb', '#1d4ed8', '#1e40af']
 
@@ -44,30 +43,21 @@ export function RevenueChart() {
   }
 
   return (
-    <Card className="bg-white border-gray-200">
-      <CardHeader>
-        <CardTitle className="text-lg">Receitas vs Despesas</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="month" stroke="#6b7280" fontSize={12} />
-              <YAxis stroke="#6b7280" fontSize={12} tickFormatter={(value) => `R$${(value / 1000).toFixed(0)}k`} />
-              <Tooltip
-                contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
-                labelStyle={{ color: '#111827' }}
-                formatter={(value) => [formatCurrency(Number(value))]}
-              />
-              <Legend wrapperStyle={{ color: '#6b7280' }} />
-              <Bar dataKey="revenue" name="Receita" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="expenses" name="Despesa" fill="#ef4444" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </CardContent>
-    </Card>
+    <ResponsiveContainer width="100%" height="100%">
+      <BarChart data={data}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+        <XAxis dataKey="month" stroke="#6b7280" fontSize={12} />
+        <YAxis stroke="#6b7280" fontSize={12} tickFormatter={(value) => `R$${(value / 1000).toFixed(0)}k`} />
+        <Tooltip
+          contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+          labelStyle={{ color: '#111827' }}
+          formatter={(value) => [formatCurrency(Number(value))]}
+        />
+        <Legend wrapperStyle={{ color: '#6b7280' }} />
+        <Bar dataKey="revenue" name="Receita" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="expenses" name="Despesa" fill="#ef4444" radius={[4, 4, 0, 0]} />
+      </BarChart>
+    </ResponsiveContainer>
   )
 }
 
@@ -99,40 +89,31 @@ export function ProjectsByStatusChart() {
   }
 
   return (
-    <Card className="bg-white border-gray-200">
-      <CardHeader>
-        <CardTitle className="text-lg">Projetos por Status</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={data}
-                cx="50%"
-                cy="50%"
-                innerRadius={60}
-                outerRadius={100}
-                paddingAngle={5}
-                dataKey="value"
-              >
-                {data.map((_, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip
-                contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
-                formatter={(value) => [`${value} projetos`]}
-              />
-              <Legend
-                wrapperStyle={{ color: '#6b7280' }}
-                formatter={(value) => <span style={{ color: '#6b7280' }}>{value}</span>}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      </CardContent>
-    </Card>
+    <ResponsiveContainer width="100%" height="100%">
+      <PieChart>
+        <Pie
+          data={data}
+          cx="50%"
+          cy="50%"
+          innerRadius={50}
+          outerRadius={80}
+          paddingAngle={5}
+          dataKey="value"
+        >
+          {data.map((_, index) => (
+            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+          ))}
+        </Pie>
+        <Tooltip
+          contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+          formatter={(value) => [`${value} projetos`]}
+        />
+        <Legend
+          wrapperStyle={{ color: '#6b7280' }}
+          formatter={(value) => <span style={{ color: '#6b7280' }}>{value}</span>}
+        />
+      </PieChart>
+    </ResponsiveContainer>
   )
 }
 
@@ -159,26 +140,17 @@ export function TopClientsChart() {
   }
 
   return (
-    <Card className="bg-white border-gray-200">
-      <CardHeader>
-        <CardTitle className="text-lg">Top Clientes por Valor</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={clientData} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis type="number" stroke="#6b7280" fontSize={12} tickFormatter={(value) => `R$${(value / 1000).toFixed(0)}k`} />
-              <YAxis type="category" dataKey="name" stroke="#6b7280" fontSize={12} width={80} />
-              <Tooltip
-                contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
-                formatter={(value) => [formatCurrency(Number(value))]}
-              />
-              <Bar dataKey="value" fill="#3b82f6" radius={[0, 4, 4, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </CardContent>
-    </Card>
+    <ResponsiveContainer width="100%" height="100%">
+      <BarChart data={clientData} layout="vertical">
+        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+        <XAxis type="number" stroke="#6b7280" fontSize={12} tickFormatter={(value) => `R$${(value / 1000).toFixed(0)}k`} />
+        <YAxis type="category" dataKey="name" stroke="#6b7280" fontSize={12} width={80} />
+        <Tooltip
+          contentStyle={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+          formatter={(value) => [formatCurrency(Number(value))]}
+        />
+        <Bar dataKey="value" fill="#3b82f6" radius={[0, 4, 4, 0]} />
+      </BarChart>
+    </ResponsiveContainer>
   )
 }
