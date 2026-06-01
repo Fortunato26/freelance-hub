@@ -61,8 +61,19 @@ export const prisma = {
   verificationToken: createMockModel(),
 } as any
 
-// To use real Prisma, uncomment below and run: prisma generate
-// import { PrismaClient } from '@prisma/client'
-// const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined }
-// export const prisma = globalForPrisma.prisma ?? new PrismaClient()
-// if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+// To use real Prisma with Supabase:
+// 1. Run: npx prisma generate
+// 2. Set DATABASE_URL in .env
+// 3. Uncomment the code below and comment out the mock above
+
+/*
+import { PrismaClient } from '@prisma/client'
+
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined
+}
+
+export const prisma = globalForPrisma.prisma ?? new PrismaClient()
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+*/
