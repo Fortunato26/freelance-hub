@@ -1,12 +1,12 @@
 'use client'
 
-import Link from 'next/link'
+import { GlobalSearch } from '@/components/GlobalSearch'
 
 export function Header() {
   return (
     <header className="h-16 bg-[#0a0a0a] border-b border-[#262626] flex items-center justify-between px-6">
-      <div className="flex items-center gap-4">
-        <h2 className="text-lg font-semibold">Dashboard</h2>
+      <div className="flex-1 max-w-md">
+        <GlobalSearch />
       </div>
 
       <div className="flex items-center gap-4">
@@ -20,10 +20,6 @@ export function Header() {
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-[#d4af37] flex items-center justify-center text-[#0a0a0a] text-sm font-bold">
             GF
-          </div>
-          <div className="hidden md:block">
-            <p className="text-sm font-medium">Gabriel Fortunato</p>
-            <p className="text-xs text-[#525252]">Plano Gratuito</p>
           </div>
         </div>
       </div>
