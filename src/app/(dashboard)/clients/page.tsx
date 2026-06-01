@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Card, CardContent } from '@/components/ui/card'
 import Link from 'next/link'
 
 export default function ClientsPage() {
@@ -31,68 +30,129 @@ export default function ClientsPage() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="p-6">
+        {/* Page Header */}
+        <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold">Clientes</h1>
-            <p className="text-[#a3a3a3]">{clients.length} clientes cadastrados</p>
+            <h1 className="text-2xl font-bold text-gray-900">Contatos</h1>
+            <p className="text-gray-500 mt-1">{clients.length} contatos cadastrados</p>
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-gradient-to-r from-[#d4af37] to-[#f4d03f] text-[#0a0a0a] hover:shadow-[0_0_20px_rgba(212,175,55,0.3)]">+ Novo Cliente</Button>
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Novo Contato
+              </Button>
             </DialogTrigger>
-            <DialogContent className="bg-[#1a1a1a] border-[#262626]">
-              <DialogHeader><DialogTitle>Novo Cliente</DialogTitle></DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div><Label>Nome *</Label><Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="bg-[#0a0a0a] border-[#262626]" required /></div>
-                <div><Label>Email</Label><Input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="bg-[#0a0a0a] border-[#262626]" /></div>
-                <div><Label>Telefone</Label><Input value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="bg-[#0a0a0a] border-[#262626]" /></div>
-                <div><Label>Empresa</Label><Input value={formData.company} onChange={(e) => setFormData({ ...formData, company: e.target.value })} className="bg-[#0a0a0a] border-[#262626]" /></div>
-                <div><Label>Observações</Label><Input value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} className="bg-[#0a0a0a] border-[#262626]" /></div>
-                <Button type="submit" className="w-full bg-gradient-to-r from-[#d4af37] to-[#f4d03f] text-[#0a0a0a]">Salvar Cliente</Button>
+            <DialogContent className="bg-white max-w-md">
+              <DialogHeader>
+                <DialogTitle className="text-xl">Novo Contato</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+                <div>
+                  <Label className="text-gray-700">Nome *</Label>
+                  <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="mt-1" required />
+                </div>
+                <div>
+                  <Label className="text-gray-700">Email</Label>
+                  <Input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="mt-1" />
+                </div>
+                <div>
+                  <Label className="text-gray-700">Telefone</Label>
+                  <Input value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="mt-1" />
+                </div>
+                <div>
+                  <Label className="text-gray-700">Empresa</Label>
+                  <Input value={formData.company} onChange={(e) => setFormData({ ...formData, company: e.target.value })} className="mt-1" />
+                </div>
+                <div>
+                  <Label className="text-gray-700">Observações</Label>
+                  <Input value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} className="mt-1" />
+                </div>
+                <div className="flex gap-3 pt-4">
+                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1">
+                    Cancelar
+                  </Button>
+                  <Button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white">
+                    Salvar
+                  </Button>
+                </div>
               </form>
             </DialogContent>
           </Dialog>
         </div>
 
-        <div className="relative">
-          <Input placeholder="Buscar clientes..." value={search} onChange={(e) => setSearch(e.target.value)} className="bg-[#1a1a1a] border-[#262626] pl-10" />
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#525252]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredClients.map((client) => (
-            <Link key={client.id} href={`/clients/${client.id}`}>
-              <Card className="bg-[#1a1a1a] border-[#262626] hover:border-[#b8960f] transition-colors cursor-pointer h-full">
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-[#d4af37] flex items-center justify-center text-[#0a0a0a] font-bold text-lg">{client.name.charAt(0)}</div>
-                      <div>
-                        <h3 className="font-semibold">{client.name}</h3>
-                        {client.company && <p className="text-sm text-[#525252]">{client.company}</p>}
-                      </div>
-                    </div>
-                    <Button variant="ghost" size="sm" onClick={(e) => { e.preventDefault(); if (confirm('Tem certeza que deseja excluir este cliente?')) { deleteClient(client.id); } }} className="text-red-500 hover:text-red-400 hover:bg-red-500/10" aria-label="Excluir cliente">✕</Button>
-                  </div>
-                  <div className="mt-4 space-y-2 text-sm">
-                    {client.email && <p className="text-[#a3a3a3]"><span className="text-[#525252]">Email:</span> {client.email}</p>}
-                    {client.phone && <p className="text-[#a3a3a3]"><span className="text-[#525252]">Tel:</span> {client.phone}</p>}
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </div>
-
-        {filteredClients.length === 0 && (
-          <div className="text-center py-12 text-[#525252]">
-            <p className="text-lg">Nenhum cliente encontrado</p>
-            <p className="text-sm mt-2">Adicione seu primeiro cliente clicando no botão acima</p>
+        {/* Search Bar */}
+        <div className="mb-6">
+          <div className="relative">
+            <Input
+              placeholder="Buscar contatos..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-10 bg-white"
+            />
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
           </div>
-        )}
+        </div>
+
+        {/* Contacts Table */}
+        <div className="bg-white rounded-xl border border-gray-200 shadow-rd overflow-hidden">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-gray-100 bg-gray-50">
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Contato</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Telefone</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Empresa</th>
+                <th className="text-right px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {filteredClients.map((client) => (
+                <tr key={client.id} className="table-row">
+                  <td className="px-5 py-4">
+                    <Link href={`/clients/${client.id}`} className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-medium text-sm">
+                        {client.name.charAt(0)}
+                      </div>
+                      <span className="text-sm font-medium text-gray-900 hover:text-blue-600">{client.name}</span>
+                    </Link>
+                  </td>
+                  <td className="px-5 py-4 text-sm text-gray-500">{client.email || '-'}</td>
+                  <td className="px-5 py-4 text-sm text-gray-500">{client.phone || '-'}</td>
+                  <td className="px-5 py-4 text-sm text-gray-500">{client.company || '-'}</td>
+                  <td className="px-5 py-4 text-right">
+                    <button
+                      onClick={() => { if (confirm('Tem certeza que deseja excluir este contato?')) { deleteClient(client.id); } }}
+                      className="text-gray-400 hover:text-red-500 transition-colors"
+                      aria-label="Excluir contato"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {filteredClients.length === 0 && (
+            <div className="p-12 text-center">
+              <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-1">Nenhum contato encontrado</h3>
+              <p className="text-gray-500 mb-4">Comece adicionando seu primeiro contato</p>
+            </div>
+          )}
+        </div>
       </div>
     </DashboardLayout>
   )
