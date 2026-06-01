@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, ReactNode, useCallback } from 'react'
+import { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react'
 import { Client, Project, Payment, Task, DashboardStats } from '@/types'
 
 interface AppContextType {
@@ -9,16 +9,16 @@ interface AppContextType {
   projects: Project[]
   payments: Payment[]
   tasks: Task[]
-  addClient: (client: Omit<Client, 'id' | 'createdAt' | 'userId'>) => void
-  updateClient: (id: string, data: Partial<Client>) => void
-  deleteClient: (id: string) => void
-  addProject: (project: Omit<Project, 'id' | 'createdAt' | 'userId'>) => void
-  updateProject: (id: string, data: Partial<Project>) => void
-  deleteProject: (id: string) => void
-  addPayment: (payment: Omit<Payment, 'id'>) => void
-  addTask: (task: Omit<Task, 'id' | 'createdAt'>) => void
-  updateTask: (id: string, data: Partial<Task>) => void
-  deleteTask: (id: string) => void
+  addClient: (client: Omit<Client, 'id' | 'createdAt' | 'userId'>) => Promise<void>
+  updateClient: (id: string, data: Partial<Client>) => Promise<void>
+  deleteClient: (id: string) => Promise<void>
+  addProject: (project: Omit<Project, 'id' | 'createdAt' | 'userId'>) => Promise<void>
+  updateProject: (id: string, data: Partial<Project>) => Promise<void>
+  deleteProject: (id: string) => Promise<void>
+  addPayment: (payment: Omit<Payment, 'id'>) => Promise<void>
+  addTask: (task: Omit<Task, 'id' | 'createdAt'>) => Promise<void>
+  updateTask: (id: string, data: Partial<Task>) => Promise<void>
+  deleteTask: (id: string) => Promise<void>
   getDashboardStats: () => DashboardStats
   getClientById: (id: string) => Client | undefined
   getProjectById: (id: string) => Project | undefined
@@ -29,116 +29,137 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined)
 
-function generateId() {
-  return Math.random().toString(36).substring(2) + Date.now().toString(36)
-}
-
-function loadFromStorage<T>(key: string, userId: string): T[] {
-  if (typeof window === 'undefined') return []
-  const data = localStorage.getItem(`${key}_${userId}`)
-  return data ? JSON.parse(data) : []
-}
-
-function saveToStorage<T>(key: string, userId: string, data: T[]) {
-  if (typeof window === 'undefined') return
-  localStorage.setItem(`${key}_${userId}`, JSON.stringify(data))
-}
-
 export function AppProvider({ children, userId }: { children: ReactNode; userId?: string }) {
-  const [clients, setClients] = useState<Client[]>(() => userId ? loadFromStorage('fh_clients', userId) : [])
-  const [projects, setProjects] = useState<Project[]>(() => userId ? loadFromStorage('fh_projects', userId) : [])
-  const [payments, setPayments] = useState<Payment[]>(() => userId ? loadFromStorage('fh_payments', userId) : [])
-  const [tasks, setTasks] = useState<Task[]>(() => userId ? loadFromStorage('fh_tasks', userId) : [])
+  const [clients, setClients] = useState<Client[]>([])
+  const [projects, setProjects] = useState<Project[]>([])
+  const [payments, setPayments] = useState<Payment[]>([])
+  const [tasks, setTasks] = useState<Task[]>([])
 
-  const saveClients = useCallback((data: Client[]) => {
-    if (userId) saveToStorage('fh_clients', userId, data)
-  }, [userId])
-
-  const saveProjects = useCallback((data: Project[]) => {
-    if (userId) saveToStorage('fh_projects', userId, data)
-  }, [userId])
-
-  const savePayments = useCallback((data: Payment[]) => {
-    if (userId) saveToStorage('fh_payments', userId, data)
-  }, [userId])
-
-  const saveTasks = useCallback((data: Task[]) => {
-    if (userId) saveToStorage('fh_tasks', userId, data)
-  }, [userId])
-
-  const addClient = (clientData: Omit<Client, 'id' | 'createdAt' | 'userId'>) => {
+  useEffect(() => {
     if (!userId) return
-    const newClient: Client = { ...clientData, id: generateId(), createdAt: new Date(), userId }
-    const updated = [newClient, ...clients]
-    setClients(updated)
-    saveClients(updated)
+    loadData()
+  }, [userId])
+
+  const loadData = async () => {
+    try {
+      const [clientsRes, projectsRes, paymentsRes] = await Promise.all([
+        fetch('/api/clients'),
+        fetch('/api/projects'),
+        fetch('/api/payments'),
+      ])
+      if (clientsRes.ok) setClients(await clientsRes.json())
+      if (projectsRes.ok) setProjects(await projectsRes.json())
+      if (paymentsRes.ok) setPayments(await paymentsRes.json())
+    } catch (error) {
+      console.error('Erro ao carregar dados:', error)
+    }
   }
 
-  const updateClient = (id: string, data: Partial<Client>) => {
-    const updated = clients.map(c => c.id === id ? { ...c, ...data } : c)
-    setClients(updated)
-    saveClients(updated)
-  }
-
-  const deleteClient = (id: string) => {
-    const updated = clients.filter(c => c.id !== id)
-    setClients(updated)
-    saveClients(updated)
-    const updatedProjects = projects.filter(p => p.clientId !== id)
-    setProjects(updatedProjects)
-    saveProjects(updatedProjects)
-  }
-
-  const addProject = (projectData: Omit<Project, 'id' | 'createdAt' | 'userId'>) => {
+  const addClient = async (clientData: Omit<Client, 'id' | 'createdAt' | 'userId'>) => {
     if (!userId) return
-    const newProject: Project = { ...projectData, id: generateId(), createdAt: new Date(), userId }
-    const updated = [newProject, ...projects]
-    setProjects(updated)
-    saveProjects(updated)
+    const res = await fetch('/api/clients', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...clientData, userId }),
+    })
+    if (res.ok) {
+      const newClient = await res.json()
+      setClients(prev => [newClient, ...prev])
+    }
   }
 
-  const updateProject = (id: string, data: Partial<Project>) => {
-    const updated = projects.map(p => p.id === id ? { ...p, ...data } : p)
-    setProjects(updated)
-    saveProjects(updated)
+  const updateClient = async (id: string, data: Partial<Client>) => {
+    const res = await fetch(`/api/clients/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    if (res.ok) {
+      setClients(prev => prev.map(c => c.id === id ? { ...c, ...data } : c))
+    }
   }
 
-  const deleteProject = (id: string) => {
-    const updatedProjects = projects.filter(p => p.id !== id)
-    setProjects(updatedProjects)
-    saveProjects(updatedProjects)
-    const updatedTasks = tasks.filter(t => t.projectId !== id)
-    setTasks(updatedTasks)
-    saveTasks(updatedTasks)
-    const updatedPayments = payments.filter(p => p.projectId !== id)
-    setPayments(updatedPayments)
-    savePayments(updatedPayments)
+  const deleteClient = async (id: string) => {
+    const res = await fetch(`/api/clients/${id}`, { method: 'DELETE' })
+    if (res.ok) {
+      setClients(prev => prev.filter(c => c.id !== id))
+      setProjects(prev => prev.filter(p => p.clientId !== id))
+    }
   }
 
-  const addPayment = (paymentData: Omit<Payment, 'id'>) => {
-    const newPayment: Payment = { ...paymentData, id: generateId() }
-    const updated = [newPayment, ...payments]
-    setPayments(updated)
-    savePayments(updated)
+  const addProject = async (projectData: Omit<Project, 'id' | 'createdAt' | 'userId'>) => {
+    if (!userId) return
+    const res = await fetch('/api/projects', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...projectData, userId }),
+    })
+    if (res.ok) {
+      const newProject = await res.json()
+      setProjects(prev => [newProject, ...prev])
+    }
   }
 
-  const addTask = (taskData: Omit<Task, 'id' | 'createdAt'>) => {
-    const newTask: Task = { ...taskData, id: generateId(), createdAt: new Date() }
-    const updated = [newTask, ...tasks]
-    setTasks(updated)
-    saveTasks(updated)
+  const updateProject = async (id: string, data: Partial<Project>) => {
+    const res = await fetch(`/api/projects/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    if (res.ok) {
+      setProjects(prev => prev.map(p => p.id === id ? { ...p, ...data } : p))
+    }
   }
 
-  const updateTask = (id: string, data: Partial<Task>) => {
-    const updated = tasks.map(t => t.id === id ? { ...t, ...data } : t)
-    setTasks(updated)
-    saveTasks(updated)
+  const deleteProject = async (id: string) => {
+    const res = await fetch(`/api/projects/${id}`, { method: 'DELETE' })
+    if (res.ok) {
+      setProjects(prev => prev.filter(p => p.id !== id))
+      setTasks(prev => prev.filter(t => t.projectId !== id))
+      setPayments(prev => prev.filter(p => p.projectId !== id))
+    }
   }
 
-  const deleteTask = (id: string) => {
-    const updated = tasks.filter(t => t.id !== id)
-    setTasks(updated)
-    saveTasks(updated)
+  const addPayment = async (paymentData: Omit<Payment, 'id'>) => {
+    const res = await fetch('/api/payments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(paymentData),
+    })
+    if (res.ok) {
+      const newPayment = await res.json()
+      setPayments(prev => [newPayment, ...prev])
+    }
+  }
+
+  const addTask = async (taskData: Omit<Task, 'id' | 'createdAt'>) => {
+    const res = await fetch('/api/tasks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(taskData),
+    })
+    if (res.ok) {
+      const newTask = await res.json()
+      setTasks(prev => [newTask, ...prev])
+    }
+  }
+
+  const updateTask = async (id: string, data: Partial<Task>) => {
+    const res = await fetch(`/api/tasks/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    if (res.ok) {
+      setTasks(prev => prev.map(t => t.id === id ? { ...t, ...data } : t))
+    }
+  }
+
+  const deleteTask = async (id: string) => {
+    const res = await fetch(`/api/tasks/${id}`, { method: 'DELETE' })
+    if (res.ok) {
+      setTasks(prev => prev.filter(t => t.id !== id))
+    }
   }
 
   const getDashboardStats = (): DashboardStats => {
