@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useApp } from '@/context/AppContext'
-import { formatCurrency } from '@/utils/format'
 
 const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
 const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
@@ -23,7 +22,6 @@ export function Calendar() {
   const nextMonth = () => setCurrentDate(new Date(year, month + 1))
 
   const getEventsForDay = (day: number) => {
-    const date = new Date(year, month, day)
     return projects.filter(p => {
       if (!p.deadline) return false
       const deadline = new Date(p.deadline)

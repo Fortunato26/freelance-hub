@@ -7,11 +7,13 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { loginSchema } from '@/lib/validations'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({})
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
@@ -19,15 +21,28 @@ export default function LoginPage() {
     e.preventDefault()
     setLoading(true)
     setError('')
+    setFieldErrors({})
+
+    const result = loginSchema.safeParse({ email, password })
+    if (!result.success) {
+      const fieldErrs: { email?: string; password?: string } = {}
+      result.error.issues.forEach(issue => {
+        const field = issue.path[0] as 'email' | 'password'
+        fieldErrs[field] = issue.message
+      })
+      setFieldErrors(fieldErrs)
+      setLoading(false)
+      return
+    }
 
     try {
-      const result = await signIn('credentials', {
-        email,
-        password,
+      const signInResult = await signIn('credentials', {
+        email: result.data.email,
+        password: result.data.password,
         redirect: false,
       })
 
-      if (result?.error) {
+      if (signInResult?.error) {
         setError('Email ou senha inválidos')
       } else {
         router.push('/')
@@ -89,10 +104,12 @@ export default function LoginPage() {
             <div>
               <Label className="text-gray-700">Email</Label>
               <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1" placeholder="seu@email.com" required />
+              {fieldErrors.email && <p className="text-red-500 text-xs mt-1">{fieldErrors.email}</p>}
             </div>
             <div>
               <Label className="text-gray-700">Senha</Label>
               <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="mt-1" placeholder="••••••••" required />
+              {fieldErrors.password && <p className="text-red-500 text-xs mt-1">{fieldErrors.password}</p>}
             </div>
             <Button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
               {loading ? 'Entrando...' : 'Entrar'}

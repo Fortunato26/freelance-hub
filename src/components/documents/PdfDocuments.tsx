@@ -145,8 +145,7 @@ export function ProposalPDF({ project, client, items }: ProposalPDFProps) {
 
         <View style={styles.section}>
           <Text style={styles.text}>
-            Segue abaixo nossa proposta para o projeto "{project.name}". 
-            Estamos à disposição para esclarecer quaisquer dúvidas.
+            {`Segue abaixo nossa proposta para o projeto "${project.name}". Estamos à disposição para esclarecer quaisquer dúvidas.`}
           </Text>
         </View>
 

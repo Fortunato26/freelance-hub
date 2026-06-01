@@ -8,7 +8,6 @@ import { formatCurrency } from '@/utils/format'
 export function GlobalSearch() {
   const [query, setQuery] = useState('')
   const [isOpen, setIsOpen] = useState(false)
-  const [results, setResults] = useState<Array<{ type: string; id: string; name: string; description?: string; href: string }>>([])
   const { clients, projects } = useApp()
   const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
@@ -42,14 +41,9 @@ export function GlobalSearch() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  useEffect(() => {
-    if (!query.trim()) {
-      setResults([])
-      return
-    }
+  const searchResults: Array<{ type: string; id: string; name: string; description?: string; href: string }> = []
 
-    const searchResults: Array<{ type: string; id: string; name: string; description?: string; href: string }> = []
-
+  if (query.trim()) {
     clients.forEach(client => {
       if (client.name.toLowerCase().includes(query.toLowerCase()) ||
           client.email?.toLowerCase().includes(query.toLowerCase()) ||
@@ -76,9 +70,7 @@ export function GlobalSearch() {
         })
       }
     })
-
-    setResults(searchResults)
-  }, [query, clients, projects])
+  }
 
   const handleSelect = (href: string) => {
     router.push(href)
@@ -106,23 +98,23 @@ export function GlobalSearch() {
         </kbd>
       </div>
 
-      {isOpen && (query.trim() || results.length > 0) && (
+      {isOpen && (query.trim() || searchResults.length > 0) && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-50 max-h-96 overflow-auto">
-          {results.length === 0 && query.trim() ? (
+          {searchResults.length === 0 && query.trim() ? (
             <div className="p-6 text-center">
               <div className="w-12 h-12 mx-auto mb-3 bg-gray-100 rounded-full flex items-center justify-center">
                 <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
-              <p className="text-sm text-gray-500">Nenhum resultado para "{query}"</p>
+              <p className="text-sm text-gray-500">Nenhum resultado para &quot;{query}&quot;</p>
             </div>
           ) : (
             <div className="py-2">
               <div className="px-3 py-2">
                 <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Resultados</p>
               </div>
-              {results.map((result) => (
+              {searchResults.map((result) => (
                 <button
                   key={`${result.type}-${result.id}`}
                   onClick={() => handleSelect(result.href)}

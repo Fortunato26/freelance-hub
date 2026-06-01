@@ -3,7 +3,7 @@
 import { DashboardLayout } from '@/components/DashboardLayout'
 import { useApp } from '@/context/AppContext'
 import { formatCurrency } from '@/utils/format'
-import { RevenueChart, ProjectsByStatusChart, TopClientsChart } from '@/components/dashboard/Charts'
+import { RevenueChart, ProjectsByStatusChart } from '@/components/dashboard/Charts'
 
 export default function Home() {
   const { getDashboardStats, projects, payments, clients } = useApp()

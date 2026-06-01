@@ -220,11 +220,11 @@ export default function ProposalsPage() {
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-bold">Proposta: {project.name}</h3>
-                    <p className="text-sm text-gray-600">Prezado(a) {client.name},</p>
-                    <p className="text-sm mt-2">
-                      Segue abaixo nossa proposta para o projeto "{project.name}".
-                    </p>
+                      <h3 className="text-lg font-bold">Proposta: {project.name}</h3>
+                      <p className="text-sm text-gray-600">Prezado(a) {client.name},</p>
+                      <p className="text-sm mt-2">
+                        Segue abaixo nossa proposta para o projeto &quot;{project.name}&quot;
+                      </p>
                   </div>
 
                   <div className="bg-gray-50 p-3 rounded">

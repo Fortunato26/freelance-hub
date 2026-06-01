@@ -8,12 +8,14 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import Link from 'next/link'
+import { clientSchema, ClientInput } from '@/lib/validations'
 
 export default function ClientsPage() {
   const { clients, addClient, deleteClient } = useApp()
   const [search, setSearch] = useState('')
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', company: '', notes: '' })
+  const [formData, setFormData] = useState<ClientInput>({ name: '', email: '', phone: '', company: '', notes: '' })
+  const [errors, setErrors] = useState<Partial<Record<keyof ClientInput, string>>>({})
 
   const filteredClients = clients.filter(client =>
     client.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -23,7 +25,18 @@ export default function ClientsPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    addClient({ ...formData, userId: 'user1' })
+    const result = clientSchema.safeParse(formData)
+    if (!result.success) {
+      const fieldErrors: Partial<Record<keyof ClientInput, string>> = {}
+      result.error.issues.forEach(issue => {
+        const field = issue.path[0] as keyof ClientInput
+        fieldErrors[field] = issue.message
+      })
+      setErrors(fieldErrors)
+      return
+    }
+    setErrors({})
+    addClient(result.data)
     setFormData({ name: '', email: '', phone: '', company: '', notes: '' })
     setIsDialogOpen(false)
   }
@@ -54,22 +67,27 @@ export default function ClientsPage() {
                 <div>
                   <Label className="text-gray-700">Nome *</Label>
                   <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="mt-1" required />
+                  {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
                 </div>
                 <div>
                   <Label className="text-gray-700">Email</Label>
                   <Input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="mt-1" />
+                  {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                 </div>
                 <div>
                   <Label className="text-gray-700">Telefone</Label>
                   <Input value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="mt-1" />
+                  {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
                 </div>
                 <div>
                   <Label className="text-gray-700">Empresa</Label>
                   <Input value={formData.company} onChange={(e) => setFormData({ ...formData, company: e.target.value })} className="mt-1" />
+                  {errors.company && <p className="text-red-500 text-xs mt-1">{errors.company}</p>}
                 </div>
                 <div>
                   <Label className="text-gray-700">Observações</Label>
                   <Input value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} className="mt-1" />
+                  {errors.notes && <p className="text-red-500 text-xs mt-1">{errors.notes}</p>}
                 </div>
                 <div className="flex gap-3 pt-4">
                   <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1">

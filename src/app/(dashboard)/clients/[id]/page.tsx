@@ -25,7 +25,7 @@ const statusColors: Record<string, string> = {
 
 export default function ClientDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
-  const { getClientById, getProjectsByClient, getPaymentsByProject } = useApp()
+  const { getClientById, getProjectsByClient } = useApp()
   
   const client = getClientById(id)
   const clientProjects = getProjectsByClient(id)

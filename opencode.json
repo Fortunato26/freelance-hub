@@ -1,0 +1,10 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "freelance-hub",
+  "agent": {
+    "freelance-hub": {
+      "description": "Agente especializado no projeto FreelanceHub. Gerencia estado do projeto e lembra onde paramos.",
+      "mode": "primary"
+    }
+  }
+}

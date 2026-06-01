@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { formatCurrency } from '@/utils/format'
 import { ProjectStatus, Project } from '@/types'
 import Link from 'next/link'
+import { projectSchema, ProjectInput } from '@/lib/validations'
 import {
   DndContext,
   closestCenter,
@@ -88,6 +89,7 @@ export default function ProjectsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [activeId, setActiveId] = useState<string | null>(null)
   const [formData, setFormData] = useState({ name: '', description: '', value: '', clientId: '', deadline: '' })
+  const [errors, setErrors] = useState<Partial<Record<keyof ProjectInput, string>>>({})
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
@@ -122,8 +124,19 @@ export default function ProjectsPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     const value = parseFloat(formData.value)
-    if (isNaN(value) || value <= 0) return
-    addProject({ name: formData.name, description: formData.description, value, status: 'proposal', deadline: formData.deadline ? new Date(formData.deadline) : null, clientId: formData.clientId, userId: 'user1' })
+    if (isNaN(value)) return
+    const result = projectSchema.safeParse({ ...formData, value })
+    if (!result.success) {
+      const fieldErrors: Partial<Record<keyof ProjectInput, string>> = {}
+      result.error.issues.forEach(issue => {
+        const field = issue.path[0] as keyof ProjectInput
+        fieldErrors[field] = issue.message
+      })
+      setErrors(fieldErrors)
+      return
+    }
+    setErrors({})
+    addProject({ name: result.data.name, description: result.data.description, value: result.data.value, status: 'proposal', deadline: result.data.deadline ? new Date(result.data.deadline) : null, clientId: result.data.clientId })
     setFormData({ name: '', description: '', value: '', clientId: '', deadline: '' })
     setIsDialogOpen(false)
   }
@@ -156,15 +169,18 @@ export default function ProjectsPage() {
                 <div>
                   <Label className="text-gray-700">Nome do Negócio *</Label>
                   <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="mt-1" required />
+                  {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
                 </div>
                 <div>
                   <Label className="text-gray-700">Descrição</Label>
                   <Input value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} className="mt-1" />
+                  {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label className="text-gray-700">Valor (R$) *</Label>
                     <Input type="number" step="0.01" value={formData.value} onChange={(e) => setFormData({ ...formData, value: e.target.value })} className="mt-1" required />
+                    {errors.value && <p className="text-red-500 text-xs mt-1">{errors.value}</p>}
                   </div>
                   <div>
                     <Label className="text-gray-700">Prazo</Label>
@@ -183,6 +199,7 @@ export default function ProjectsPage() {
                       ))}
                     </SelectContent>
                   </Select>
+                  {errors.clientId && <p className="text-red-500 text-xs mt-1">{errors.clientId}</p>}
                 </div>
                 <div className="flex gap-3 pt-4">
                   <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1">

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { registerSchema } from '@/lib/validations'
 
 export default function RegisterPage() {
   const [name, setName] = useState('')
@@ -13,6 +14,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<string, string>>>({})
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
@@ -20,9 +22,16 @@ export default function RegisterPage() {
     e.preventDefault()
     setLoading(true)
     setError('')
+    setFieldErrors({})
 
-    if (password !== confirmPassword) {
-      setError('As senhas não coincidem')
+    const result = registerSchema.safeParse({ name, email, password, confirmPassword })
+    if (!result.success) {
+      const fieldErrs: Partial<Record<string, string>> = {}
+      result.error.issues.forEach(issue => {
+        const field = issue.path[0] as string
+        fieldErrs[field] = issue.message
+      })
+      setFieldErrors(fieldErrs)
       setLoading(false)
       return
     }
@@ -31,7 +40,7 @@ export default function RegisterPage() {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name: result.data.name, email: result.data.email, password: result.data.password }),
       })
 
       const data = await response.json()
@@ -71,18 +80,22 @@ export default function RegisterPage() {
             <div>
               <Label className="text-gray-700">Nome</Label>
               <Input type="text" value={name} onChange={(e) => setName(e.target.value)} className="mt-1" placeholder="Seu nome" required />
+              {fieldErrors.name && <p className="text-red-500 text-xs mt-1">{fieldErrors.name}</p>}
             </div>
             <div>
               <Label className="text-gray-700">Email</Label>
               <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1" placeholder="seu@email.com" required />
+              {fieldErrors.email && <p className="text-red-500 text-xs mt-1">{fieldErrors.email}</p>}
             </div>
             <div>
               <Label className="text-gray-700">Senha</Label>
               <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="mt-1" placeholder="••••••••" required minLength={6} />
+              {fieldErrors.password && <p className="text-red-500 text-xs mt-1">{fieldErrors.password}</p>}
             </div>
             <div>
               <Label className="text-gray-700">Confirmar Senha</Label>
               <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className="mt-1" placeholder="••••••••" required />
+              {fieldErrors.confirmPassword && <p className="text-red-500 text-xs mt-1">{fieldErrors.confirmPassword}</p>}
             </div>
             <Button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
               {loading ? 'Criando conta...' : 'Criar Conta'}

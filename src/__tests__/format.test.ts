@@ -19,13 +19,13 @@ describe('formatCurrency', () => {
 
 describe('formatDate', () => {
   it('formats date correctly', () => {
-    const date = new Date('2026-05-15')
+    const date = new Date(2026, 4, 15)
     const result = formatDate(date)
     expect(result).toBe('15/05/2026')
   })
 
   it('handles string dates', () => {
-    const result = formatDate('2026-01-01')
+    const result = formatDate(new Date(2026, 0, 1).toISOString())
     expect(result).toBe('01/01/2026')
   })
 })
