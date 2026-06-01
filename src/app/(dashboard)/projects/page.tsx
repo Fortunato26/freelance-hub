@@ -125,7 +125,7 @@ function KanbanColumn({ status, projects, clients }: { status: ProjectStatus; pr
 }
 
 export default function ProjectsPage() {
-  const { projects, clients, addProject, updateProject } = useApp()
+  const { projects, clients, addProject, updateProject, addPayment } = useApp()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [activeId, setActiveId] = useState<string | null>(null)
   const [formData, setFormData] = useState({ name: '', description: '', value: '', clientId: '', deadline: '' })
@@ -157,6 +157,18 @@ export default function ProjectsPage() {
     const overColumn = columns.find(s => overId === `column-${s}`)
     if (overColumn && activeProject.status !== overColumn) {
       updateProject(activeProject.id, { status: overColumn })
+      
+      // Se movido para "paid", criar registro de pagamento
+      if (overColumn === 'paid') {
+        const client = clients.find(c => c.id === activeProject.clientId)
+        addPayment({
+          description: `${activeProject.name} - ${client?.name || 'Cliente'}`,
+          amount: activeProject.value,
+          type: 'receive',
+          date: new Date(),
+          projectId: activeProject.id,
+        })
+      }
       return
     }
     
@@ -164,6 +176,18 @@ export default function ProjectsPage() {
     const overProject = projects.find(p => p.id === overId)
     if (overProject && activeProject.id !== overProject.id && activeProject.status !== overProject.status) {
       updateProject(activeProject.id, { status: overProject.status })
+      
+      // Se movido para "paid", criar registro de pagamento
+      if (overProject.status === 'paid') {
+        const client = clients.find(c => c.id === activeProject.clientId)
+        addPayment({
+          description: `${activeProject.name} - ${client?.name || 'Cliente'}`,
+          amount: activeProject.value,
+          type: 'receive',
+          date: new Date(),
+          projectId: activeProject.id,
+        })
+      }
     }
   }
 
