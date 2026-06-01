@@ -21,6 +21,7 @@ import {
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
+  useDroppable,
 } from '@dnd-kit/core'
 import {
   SortableContext,
@@ -84,6 +85,45 @@ function KanbanCard({ project, clients }: { project: Project; clients: Array<{ i
   )
 }
 
+function KanbanColumn({ status, projects, clients }: { status: ProjectStatus; projects: Project[]; clients: Array<{ id: string; name: string }> }) {
+  const { isOver, setNodeRef } = useDroppable({ id: `column-${status}` })
+  const config = statusConfig[status]
+  const totalValue = projects.reduce((sum, p) => sum + p.value, 0)
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`pipeline-column rounded-xl transition-colors ${
+        isOver ? 'bg-blue-50 ring-2 ring-blue-300' : ''
+      }`}
+    >
+      <div className="p-4 border-b border-gray-200">
+        <div className="flex items-center justify-between mb-1">
+          <h3 className="text-sm font-semibold text-gray-900">{config.label}</h3>
+          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+            {projects.length}
+          </span>
+        </div>
+        <p className="text-xs text-gray-500">{formatCurrency(totalValue)}</p>
+      </div>
+      
+      <SortableContext items={projects.map(p => p.id)} strategy={verticalListSortingStrategy}>
+        <div className="p-3 space-y-3 min-h-[300px]">
+          {projects.map((project) => (
+            <KanbanCard key={project.id} project={project} clients={clients} />
+          ))}
+          
+          {projects.length === 0 && (
+            <div className="p-8 text-center text-gray-400 text-sm border-2 border-dashed border-gray-200 rounded-lg">
+              Arraste um negócio para cá
+            </div>
+          )}
+        </div>
+      </SortableContext>
+    </div>
+  )
+}
+
 export default function ProjectsPage() {
   const { projects, clients, addProject, updateProject } = useApp()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -107,14 +147,20 @@ export default function ProjectsPage() {
     const { active, over } = event
     setActiveId(null)
     if (!over) return
+    
     const activeProject = projects.find(p => p.id === active.id)
     if (!activeProject) return
+    
     const overId = over.id as string
+    
+    // Check if dropped on a column
     const overColumn = columns.find(s => overId === `column-${s}`)
-    if (overColumn) {
+    if (overColumn && activeProject.status !== overColumn) {
       updateProject(activeProject.id, { status: overColumn })
       return
     }
+    
+    // Check if dropped on another project
     const overProject = projects.find(p => p.id === overId)
     if (overProject && activeProject.id !== overProject.id && activeProject.status !== overProject.status) {
       updateProject(activeProject.id, { status: overProject.status })
@@ -217,39 +263,14 @@ export default function ProjectsPage() {
         {/* Pipeline Board */}
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {columns.map((status) => {
-              const config = statusConfig[status]
-              const statusProjects = getProjectsByStatus(status)
-              const statusValue = statusProjects.reduce((sum, p) => sum + p.value, 0)
-              
-              return (
-                <div key={status} className="pipeline-column">
-                  <div className="p-4 border-b border-gray-200">
-                    <div className="flex items-center justify-between mb-1">
-                      <h3 className="text-sm font-semibold text-gray-900">{config.label}</h3>
-                      <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
-                        {statusProjects.length}
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-500">{formatCurrency(statusValue)}</p>
-                  </div>
-                  
-                  <SortableContext items={statusProjects.map(p => p.id)} strategy={verticalListSortingStrategy}>
-                    <div className="p-3 space-y-3 min-h-[300px]">
-                      {statusProjects.map((project) => (
-                        <KanbanCard key={project.id} project={project} clients={clients} />
-                      ))}
-                      
-                      {statusProjects.length === 0 && (
-                        <div className="p-8 text-center text-gray-400 text-sm">
-                          Arraste um negócio para cá
-                        </div>
-                      )}
-                    </div>
-                  </SortableContext>
-                </div>
-              )
-            })}
+            {columns.map((status) => (
+              <KanbanColumn
+                key={status}
+                status={status}
+                projects={getProjectsByStatus(status)}
+                clients={clients}
+              />
+            ))}
           </div>
 
           <DragOverlay>

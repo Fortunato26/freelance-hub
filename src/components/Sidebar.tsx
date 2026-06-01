@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { useAuth } from '@/hooks/useAuth'
 
 const menuItems = [
   { 
@@ -94,6 +95,10 @@ const bottomMenuItems = [
 
 export function Sidebar() {
   const pathname = usePathname()
+  const { user } = useAuth()
+  
+  const userName = user?.name || 'Usuário'
+  const userInitials = userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'U'
 
   return (
     <aside className="w-[60px] lg:w-[220px] bg-white border-r border-gray-200 min-h-screen flex flex-col">
@@ -153,10 +158,10 @@ export function Sidebar() {
       <div className="p-3 border-t border-gray-100">
         <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
-            GF
+            {userInitials}
           </div>
           <div className="hidden lg:block flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate">Gabriel Fortunato</p>
+            <p className="text-sm font-medium text-gray-900 truncate">{userName}</p>
             <p className="text-xs text-gray-500 truncate">Plano Gratuito</p>
           </div>
         </div>
