@@ -2,17 +2,17 @@ import { z } from 'zod'
 
 export const clientSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório').max(100),
-  email: z.string().email('Email inválido').optional().or(z.literal('')),
-  phone: z.string().max(20).optional().or(z.literal('')),
-  company: z.string().max(100).optional().or(z.literal('')),
-  notes: z.string().max(500).optional().or(z.literal('')),
+  email: z.string().email('Email inválido').nullable().or(z.literal('')).transform(v => v === '' ? null : v),
+  phone: z.string().max(20).nullable().or(z.literal('')).transform(v => v === '' ? null : v),
+  company: z.string().max(100).nullable().or(z.literal('')).transform(v => v === '' ? null : v),
+  notes: z.string().max(500).nullable().or(z.literal('')).transform(v => v === '' ? null : v),
 })
 
 export const projectSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório').max(100),
-  description: z.string().max(500).optional().or(z.literal('')),
+  description: z.string().max(500).nullable().or(z.literal('')).transform(v => v === '' ? null : v),
   value: z.number().positive('Valor deve ser positivo'),
-  deadline: z.string().optional().or(z.literal('')),
+  deadline: z.string().nullable().or(z.literal('')).transform(v => v === '' ? null : v),
   clientId: z.string().min(1, 'Selecione um contato'),
 })
 

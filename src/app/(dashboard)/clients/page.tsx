@@ -71,22 +71,22 @@ export default function ClientsPage() {
                 </div>
                 <div>
                   <Label className="text-gray-700">Email</Label>
-                  <Input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="mt-1" />
+                  <Input type="email" value={formData.email ?? ''} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="mt-1" />
                   {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                 </div>
                 <div>
                   <Label className="text-gray-700">Telefone</Label>
-                  <Input value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="mt-1" />
+                  <Input value={formData.phone ?? ''} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} className="mt-1" />
                   {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
                 </div>
                 <div>
                   <Label className="text-gray-700">Empresa</Label>
-                  <Input value={formData.company} onChange={(e) => setFormData({ ...formData, company: e.target.value })} className="mt-1" />
+                  <Input value={formData.company ?? ''} onChange={(e) => setFormData({ ...formData, company: e.target.value })} className="mt-1" />
                   {errors.company && <p className="text-red-500 text-xs mt-1">{errors.company}</p>}
                 </div>
                 <div>
                   <Label className="text-gray-700">Observações</Label>
-                  <Input value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} className="mt-1" />
+                  <Input value={formData.notes ?? ''} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} className="mt-1" />
                   {errors.notes && <p className="text-red-500 text-xs mt-1">{errors.notes}</p>}
                 </div>
                 <div className="flex gap-3 pt-4">
