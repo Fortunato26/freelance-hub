@@ -125,7 +125,7 @@ export default function ProjectsPage() {
   const { projects, clients, addProject, updateProject } = useApp()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [activeProject, setActiveProject] = useState<Project | null>(null)
-  const [formData, setFormData] = useState<ProjectInput>({ name: '', description: '', value: '', clientId: '', deadline: '' })
+  const [formData, setFormData] = useState<{ name: string; description: string; value: string; clientId: string; deadline: string }>({ name: '', description: '', value: '', clientId: '', deadline: '' })
   const [errors, setErrors] = useState<Partial<Record<keyof ProjectInput, string>>>({})
 
   const sensors = useSensors(
@@ -158,7 +158,10 @@ export default function ProjectsPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    const result = projectSchema.safeParse(formData)
+    const result = projectSchema.safeParse({
+      ...formData,
+      value: formData.value ? parseFloat(formData.value) : 0,
+    })
     if (!result.success) {
       const fieldErrors: Partial<Record<keyof ProjectInput, string>> = {}
       result.error.issues.forEach(issue => {
