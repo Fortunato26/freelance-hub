@@ -12,6 +12,7 @@ import { formatCurrency } from '@/utils/format'
 import { ProjectStatus, Project } from '@/types'
 import Link from 'next/link'
 import { projectSchema, ProjectInput } from '@/lib/validations'
+import { ProjectsEmptyState } from '@/components/EmptyState'
 import {
   DndContext,
   closestCenter,
@@ -50,32 +51,32 @@ function KanbanCard({ project, clients }: { project: Project; clients: Array<{ i
         style={style}
         {...attributes}
         {...listeners}
-        className={`bg-white rounded-lg border border-gray-200 p-4 cursor-grab active:cursor-grabbing transition-all hover:shadow-md hover:border-blue-200 ${
-          isDragging ? 'opacity-50 shadow-lg scale-105 rotate-2' : ''
+        className={`bg-white rounded-lg border border-border p-4 cursor-grab active:cursor-grabbing transition-all duration-200 hover:shadow-md hover:border-primary/30 hover:-translate-y-0.5 ${
+          isDragging ? 'opacity-50 shadow-xl scale-105 rotate-2' : ''
         }`}
       >
         <div className="flex items-start justify-between mb-2">
-          <h4 className="text-sm font-medium text-gray-900 line-clamp-1">{project.name}</h4>
-          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${config.bg} ${config.color}`}>
+          <h4 className="text-sm font-medium text-foreground line-clamp-1">{project.name}</h4>
+          <span className={`badge ${config.bg} ${config.color}`}>
             {config.label}
           </span>
         </div>
         
         {project.description && (
-          <p className="text-xs text-gray-500 line-clamp-2 mb-3">{project.description}</p>
+          <p className="text-xs text-muted line-clamp-2 mb-3">{project.description}</p>
         )}
         
         <div className="flex items-center gap-2 mb-3">
-          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-[10px] font-medium">
+          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-[10px] font-medium">
             {client?.name?.charAt(0) || '?'}
           </div>
-          <span className="text-xs text-gray-500">{client?.name || 'Sem contato'}</span>
+          <span className="text-xs text-muted">{client?.name || 'Sem contato'}</span>
         </div>
         
-        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-          <span className="text-sm font-semibold text-gray-900">{formatCurrency(project.value)}</span>
+        <div className="flex items-center justify-between pt-3 border-t border-border-light">
+          <span className="text-sm font-semibold text-foreground">{formatCurrency(project.value)}</span>
           {project.deadline && (
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-muted-light">
               {new Date(project.deadline).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
             </span>
           )}
@@ -86,49 +87,45 @@ function KanbanCard({ project, clients }: { project: Project; clients: Array<{ i
 }
 
 function KanbanColumn({ status, projects, clients }: { status: ProjectStatus; projects: Project[]; clients: Array<{ id: string; name: string }> }) {
-  const { isOver, setNodeRef } = useDroppable({ id: `column-${status}` })
+  const { setNodeRef, isOver } = useDroppable({ id: status })
   const config = statusConfig[status]
-  const totalValue = projects.reduce((sum, p) => sum + p.value, 0)
 
   return (
     <div
       ref={setNodeRef}
-      className={`pipeline-column rounded-xl transition-colors ${
-        isOver ? 'bg-blue-50 ring-2 ring-blue-300' : ''
+      className={`rounded-xl border border-border bg-gray-50/50 p-4 transition-all duration-200 ${
+        isOver ? 'bg-primary/5 border-primary/30' : ''
       }`}
     >
-      <div className="p-4 border-b border-gray-200">
-        <div className="flex items-center justify-between mb-1">
-          <h3 className="text-sm font-semibold text-gray-900">{config.label}</h3>
-          <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
-            {projects.length}
-          </span>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <h3 className="font-semibold text-foreground">{config.label}</h3>
+          <span className="text-xs text-muted bg-white px-2 py-0.5 rounded-full">{projects.length}</span>
         </div>
-        <p className="text-xs text-gray-500">{formatCurrency(totalValue)}</p>
       </div>
       
-      <SortableContext items={projects.map(p => p.id)} strategy={verticalListSortingStrategy}>
-        <div className="p-3 space-y-3 min-h-[300px]">
+      <div className="space-y-3 min-h-[200px]">
+        <SortableContext items={projects.map(p => p.id)} strategy={verticalListSortingStrategy}>
           {projects.map((project) => (
             <KanbanCard key={project.id} project={project} clients={clients} />
           ))}
-          
-          {projects.length === 0 && (
-            <div className="p-8 text-center text-gray-400 text-sm border-2 border-dashed border-gray-200 rounded-lg">
-              Arraste um negócio para cá
-            </div>
-          )}
-        </div>
-      </SortableContext>
+        </SortableContext>
+        
+        {projects.length === 0 && (
+          <div className="text-center py-8 text-muted-light text-sm">
+            Arraste um negócio aqui
+          </div>
+        )}
+      </div>
     </div>
   )
 }
 
 export default function ProjectsPage() {
-  const { projects, clients, addProject, updateProject, addPayment } = useApp()
+  const { projects, clients, addProject, updateProject } = useApp()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [activeId, setActiveId] = useState<string | null>(null)
-  const [formData, setFormData] = useState({ name: '', description: '', value: '', clientId: '', deadline: '' })
+  const [activeProject, setActiveProject] = useState<Project | null>(null)
+  const [formData, setFormData] = useState<ProjectInput>({ name: '', description: '', value: '', clientId: '', deadline: '' })
   const [errors, setErrors] = useState<Partial<Record<keyof ProjectInput, string>>>({})
 
   const sensors = useSensors(
@@ -136,66 +133,32 @@ export default function ProjectsPage() {
   )
 
   const columns: ProjectStatus[] = ['proposal', 'in_progress', 'delivered', 'paid']
-  const getProjectsByStatus = (status: ProjectStatus) => projects.filter(p => p.status === status)
-  const activeProject = projects.find(p => p.id === activeId)
 
-  function handleDragStart(event: DragStartEvent) {
-    setActiveId(event.active.id as string)
+  const getProjectsByStatus = (status: ProjectStatus) => {
+    return projects.filter(p => p.status === status)
   }
 
-  function handleDragEnd(event: DragEndEvent) {
+  const handleDragStart = (event: DragStartEvent) => {
+    const project = projects.find(p => p.id === event.active.id)
+    if (project) setActiveProject(project)
+  }
+
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
-    setActiveId(null)
-    if (!over) return
+    setActiveProject(null)
     
-    const activeProject = projects.find(p => p.id === active.id)
-    if (!activeProject) return
-    
-    const overId = over.id as string
-    
-    // Check if dropped on a column
-    const overColumn = columns.find(s => overId === `column-${s}`)
-    if (overColumn && activeProject.status !== overColumn) {
-      updateProject(activeProject.id, { status: overColumn })
-      
-      // Se movido para "paid", criar registro de pagamento
-      if (overColumn === 'paid') {
-        const client = clients.find(c => c.id === activeProject.clientId)
-        addPayment({
-          description: `${activeProject.name} - ${client?.name || 'Cliente'}`,
-          amount: activeProject.value,
-          type: 'receive',
-          date: new Date(),
-          projectId: activeProject.id,
-        })
-      }
-      return
-    }
-    
-    // Check if dropped on another project
-    const overProject = projects.find(p => p.id === overId)
-    if (overProject && activeProject.id !== overProject.id && activeProject.status !== overProject.status) {
-      updateProject(activeProject.id, { status: overProject.status })
-      
-      // Se movido para "paid", criar registro de pagamento
-      if (overProject.status === 'paid') {
-        const client = clients.find(c => c.id === activeProject.clientId)
-        addPayment({
-          description: `${activeProject.name} - ${client?.name || 'Cliente'}`,
-          amount: activeProject.value,
-          type: 'receive',
-          date: new Date(),
-          projectId: activeProject.id,
-        })
+    if (over && active.id !== over.id) {
+      const projectId = active.id as string
+      const newStatus = over.id as ProjectStatus
+      if (columns.includes(newStatus)) {
+        updateProject(projectId, { status: newStatus })
       }
     }
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    const value = parseFloat(formData.value)
-    if (isNaN(value)) return
-    const result = projectSchema.safeParse({ ...formData, value })
+    const result = projectSchema.safeParse(formData)
     if (!result.success) {
       const fieldErrors: Partial<Record<keyof ProjectInput, string>> = {}
       result.error.issues.forEach(issue => {
@@ -217,50 +180,73 @@ export default function ProjectsPage() {
     <DashboardLayout>
       <div className="p-6">
         {/* Page Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-6 animate-slideUp">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Negócios</h1>
-            <p className="text-gray-500 mt-1">{projects.length} negócios · {formatCurrency(totalValue)} total</p>
+            <h1 className="text-2xl font-bold text-foreground">Negócios</h1>
+            <p className="text-muted mt-1">{projects.length} negócios · {formatCurrency(totalValue)} total</p>
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <Button>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
                 Novo Negócio
               </Button>
             </DialogTrigger>
-            <DialogContent className="bg-white max-w-md">
+            <DialogContent className="max-w-md">
               <DialogHeader>
-                <DialogTitle className="text-xl">Novo Negócio</DialogTitle>
+                <DialogTitle>Novo Negócio</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-                <div>
-                  <Label className="text-gray-700">Nome do Negócio *</Label>
-                  <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="mt-1" required />
-                  {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                <div className="form-group">
+                  <Label className="form-label">Nome do Negócio *</Label>
+                  <Input 
+                    value={formData.name} 
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })} 
+                    placeholder="Nome do negócio"
+                    required 
+                    error={!!errors.name}
+                  />
+                  {errors.name && <p className="form-error">{errors.name}</p>}
                 </div>
-                <div>
-                  <Label className="text-gray-700">Descrição</Label>
-                  <Input value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} className="mt-1" />
-                  {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
+                <div className="form-group">
+                  <Label className="form-label">Descrição</Label>
+                  <Input 
+                    value={formData.description} 
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })} 
+                    placeholder="Descreva o negócio"
+                    error={!!errors.description}
+                  />
+                  {errors.description && <p className="form-error">{errors.description}</p>}
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-gray-700">Valor (R$) *</Label>
-                    <Input type="number" step="0.01" value={formData.value} onChange={(e) => setFormData({ ...formData, value: e.target.value })} className="mt-1" required />
-                    {errors.value && <p className="text-red-500 text-xs mt-1">{errors.value}</p>}
+                  <div className="form-group">
+                    <Label className="form-label">Valor (R$) *</Label>
+                    <Input 
+                      type="number" 
+                      step="0.01" 
+                      value={formData.value} 
+                      onChange={(e) => setFormData({ ...formData, value: e.target.value })} 
+                      placeholder="0,00"
+                      required 
+                      error={!!errors.value}
+                    />
+                    {errors.value && <p className="form-error">{errors.value}</p>}
                   </div>
-                  <div>
-                    <Label className="text-gray-700">Prazo</Label>
-                    <Input type="date" value={formData.deadline} onChange={(e) => setFormData({ ...formData, deadline: e.target.value })} className="mt-1" />
+                  <div className="form-group">
+                    <Label className="form-label">Prazo</Label>
+                    <Input 
+                      type="date" 
+                      value={formData.deadline} 
+                      onChange={(e) => setFormData({ ...formData, deadline: e.target.value })} 
+                    />
                   </div>
                 </div>
-                <div>
-                  <Label className="text-gray-700">Contato *</Label>
+                <div className="form-group">
+                  <Label className="form-label">Contato *</Label>
                   <Select value={formData.clientId} onValueChange={(value) => setFormData({ ...formData, clientId: value })}>
-                    <SelectTrigger className="mt-1">
+                    <SelectTrigger error={!!errors.clientId}>
                       <SelectValue placeholder="Selecione um contato" />
                     </SelectTrigger>
                     <SelectContent>
@@ -269,13 +255,13 @@ export default function ProjectsPage() {
                       ))}
                     </SelectContent>
                   </Select>
-                  {errors.clientId && <p className="text-red-500 text-xs mt-1">{errors.clientId}</p>}
+                  {errors.clientId && <p className="form-error">{errors.clientId}</p>}
                 </div>
                 <div className="flex gap-3 pt-4">
                   <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="flex-1">
                     Cancelar
                   </Button>
-                  <Button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white">
+                  <Button type="submit" className="flex-1">
                     Criar Negócio
                   </Button>
                 </div>
@@ -285,27 +271,31 @@ export default function ProjectsPage() {
         </div>
 
         {/* Pipeline Board */}
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {columns.map((status) => (
-              <KanbanColumn
-                key={status}
-                status={status}
-                projects={getProjectsByStatus(status)}
-                clients={clients}
-              />
-            ))}
-          </div>
+        {projects.length === 0 ? (
+          <ProjectsEmptyState onAdd={() => setIsDialogOpen(true)} />
+        ) : (
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 animate-slideUp" style={{ animationDelay: '100ms' }}>
+              {columns.map((status) => (
+                <KanbanColumn
+                  key={status}
+                  status={status}
+                  projects={getProjectsByStatus(status)}
+                  clients={clients}
+                />
+              ))}
+            </div>
 
-          <DragOverlay>
-            {activeProject ? (
-              <div className="bg-white rounded-lg border-2 border-blue-500 p-4 shadow-xl rotate-3 opacity-90 max-w-xs">
-                <h4 className="font-medium text-sm text-gray-900">{activeProject.name}</h4>
-                <span className="text-sm font-semibold text-gray-900 mt-2 block">{formatCurrency(activeProject.value)}</span>
-              </div>
-            ) : null}
-          </DragOverlay>
-        </DndContext>
+            <DragOverlay>
+              {activeProject ? (
+                <div className="bg-white rounded-lg border-2 border-primary p-4 shadow-xl rotate-3 opacity-90 max-w-xs">
+                  <h4 className="font-medium text-sm text-foreground">{activeProject.name}</h4>
+                  <span className="text-sm font-semibold text-foreground mt-2 block">{formatCurrency(activeProject.value)}</span>
+                </div>
+              ) : null}
+            </DragOverlay>
+          </DndContext>
+        )}
       </div>
     </DashboardLayout>
   )
