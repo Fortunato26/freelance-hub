@@ -113,7 +113,7 @@ export function Sidebar() {
       </div>
 
       {/* Main Navigation */}
-      <nav className="flex-1 py-4 px-2">
+      <nav className="py-4 px-2">
         <div className="space-y-1">
           {menuItems.map((item) => (
             <Link
