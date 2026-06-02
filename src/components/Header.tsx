@@ -5,7 +5,11 @@ import { useRouter } from 'next/navigation'
 import { GlobalSearch } from '@/components/GlobalSearch'
 import { useAuth } from '@/hooks/useAuth'
 
-export function Header() {
+interface HeaderProps {
+  onSearchClick?: () => void
+}
+
+export function Header({ onSearchClick }: HeaderProps) {
   const { user } = useAuth()
   const router = useRouter()
   const [showDropdown, setShowDropdown] = useState(false)
@@ -31,7 +35,7 @@ export function Header() {
   ]
 
   return (
-    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
+    <header className="desktop-header h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
       <div className="flex-1 max-w-xl">
         <GlobalSearch />
       </div>

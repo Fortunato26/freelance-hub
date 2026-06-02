@@ -18,13 +18,18 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
     title: "FreelanceHub",
   },
+  formatDetection: {
+    telephone: false,
+  },
 }
 
 export const viewport: Viewport = {
-  themeColor: "#d4af37",
+  themeColor: "#2563eb",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  viewportFit: "cover",
 }
 
 export default function RootLayout({
@@ -34,6 +39,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
+      <head>
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+      </head>
       <body className={`${inter.variable} font-sans antialiased`}>
         <Providers>{children}</Providers>
         <PWARegistration />

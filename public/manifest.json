@@ -4,8 +4,8 @@
   "description": "CRM para Freelancers",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0a0a",
-  "theme_color": "#d4af37",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
   "orientation": "portrait-primary",
   "icons": [
     {
@@ -16,6 +16,11 @@
     {
       "src": "/icons/icon-512.png",
       "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/apple-touch-icon.png",
+      "sizes": "180x180",
       "type": "image/png"
     }
   ],
