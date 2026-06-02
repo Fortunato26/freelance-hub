@@ -249,7 +249,7 @@ export default function ProjectsPage() {
                 <div className="form-group">
                   <Label className="form-label">Contato *</Label>
                   <Select value={formData.clientId} onValueChange={(value) => setFormData({ ...formData, clientId: value })}>
-                    <SelectTrigger error={!!errors.clientId}>
+                    <SelectTrigger>
                       <SelectValue placeholder="Selecione um contato" />
                     </SelectTrigger>
                     <SelectContent>
